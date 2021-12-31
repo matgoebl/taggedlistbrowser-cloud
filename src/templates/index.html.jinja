@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+
+<h2>Search</h2>
+<form method="GET">
+<table>
+ <tr><th align=right> Search in:                </th><td>
+  <select name="i">
+   {% for label in labels %}
+    <option value="{{label}}"
+     {% if (label == request.args.i) %}
+      selected="selected"
+     {% endif %} >
+     {{label}}
+    </option>
+   {% endfor %}
+  </select>
+ </td></tr>
+ <tr><th align=right> Tag:                      </th><td>
+  <select name="t">
+   {% for tag in tags %}
+    <option value="{{tag}}"
+     {% if (tag == request.args.t) %}
+      selected="selected"
+     {% endif %} >
+     {{tag}}
+    </option>
+   {% endfor %}
+  </select>
+ </td></tr>
+ <tr><th align=right> Starting with (or RegEx): </th><td> <input type=input name=q value='{{ request.args.q or ".*" }}'> </td></tr>
+ <tr><th align=right> Filter(s):                </th><td> <input type=input name=f value='{{ request.args.f }}'> </td></tr>
+ <tr><th>                           </th><td> <input type=submit value='Search'> </td></tr>
+</table>
+</form>
+
+{% if request.args.q %}
+ <h2>Results for '{{ request.args.q | e }}'</h2>
+ <ul>
+ {% for item in results %}
+  {% if request.args.t == '.' %}
+   <li><a href="{{ url_for('detail', id=item) }}">{{ item }}</a></li> 
+  {% else %}
+   <li>{{ item }}</li> 
+  {% endif %}
+ {% else %}
+  No results.
+ {% endfor %}
+ </ul>
+{% endif %}
+
+{% endblock content %}

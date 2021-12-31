@@ -1,0 +1,9 @@
+{
+ "info": "some text abc...",
+ "type": "internal",
+ "hosts": [
+  "test.example.de",
+  "dev.example.de",
+  "monitor.example.de"
+ ]
+}

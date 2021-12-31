@@ -1,0 +1,15 @@
+www.example.com:
+- service: WWW
+- user: joe
+
+mail.example.com:
+- service: MAIL
+- user: joe
+
+www.example.de:
+- service: WWW
+- user: max
+
+mail.example.de:
+- service: MAIL
+- user: max

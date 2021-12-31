@@ -1,0 +1,23 @@
+<html>
+<head>
+ <title>Tagged List Browser - {% block title %}Base{% endblock title %}</title>
+<head>
+
+<body>
+
+<a href='{{ url_for('index')}}'>&lt;Home</a>
+<a href="javascript:history.back()">&lt;Back</a>
+
+<h1>Tagged List Browser - {{ self.title() }}</h1>
+
+{% block content %}
+{% endblock content %}
+
+{% if errormsg %}
+ <h2>Error:</h2>
+ <pre>{{ errormsg }}</pre>
+{% endif %}
+
+
+<p style="font-size:small">Build: {% include "build.txt" ignore missing %}</p>
+</body>

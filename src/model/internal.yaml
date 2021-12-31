@@ -1,0 +1,12 @@
+test.example.de:
+- user: max
+
+dev.example.de:
+- user: max
+
+monitor.example.de:
+- service: MONITOR
+
+nested.example.com:
+  something:
+  - user: deepjoe

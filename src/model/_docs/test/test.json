@@ -1,0 +1,8 @@
+{
+ "info": "some text 123...",
+ "type": "test",
+ "hosts": [
+  "test.example.de",
+  "dev.example.de"
+ ]
+}
