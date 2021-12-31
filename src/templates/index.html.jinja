@@ -36,14 +36,14 @@
 </table>
 </form>
 
-{% if request.args.q %}
- <h2>Results for '{{ request.args.q | e }}'</h2>
+{% if request.args.q or request.args.f %}
+ <h2>Results for {{ request.args.q | e }} {{ request.args.f | e }}</h2>
  <ul>
  {% for item in results %}
-  {% if request.args.t == '.' %}
+  {% if request.args.t == '.' or request.args.t == '' or request.args.t is not defined %}
    <li><a href="{{ url_for('detail', id=item) }}">{{ item }}</a></li> 
   {% else %}
-   <li>{{ item }}</li> 
+   <li><a href="{{ url_for('index', f=request.args.t + '=' + item) }}">{{ item }}</a></li> 
   {% endif %}
  {% else %}
   No results.

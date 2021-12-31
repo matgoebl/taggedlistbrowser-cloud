@@ -8,7 +8,7 @@ PYTHON_MODULES=flask python-dotenv PyYAML gunicorn
 HELM_OPTS=--set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=latest --set basicAuthUsers.$(WEBUSER)=$(WEBPASS) --set image.pullPolicy=Always
 APP_URL:=$(shell echo "$(KUBEURL)/$(NAME)/" | sed -e "s|://|://$(WEBUSER):$(WEBPASS)@|")
 
-all: image install wait ping
+all: install-with-datagenerator wait ping
 
 venv:
 	virtualenv venv --python=python3 && . venv/bin/activate && pip3 install $(PYTHON_MODULES)
@@ -54,8 +54,8 @@ ping:
 www:
 	w3m -o confirm_qq=false "$(APP_URL)"
 
-datagenerator-companion:
+install-with-datagenerator:
 	cd datagenerator/ && make
 	make HELM_OPTS="$(HELM_OPTS) --set companioncontainer.enabled=true --set companioncontainer.repository=$(DOCKER_REGISTRY)/datagenerator" install
 
-.PHONY: all run run-gunicorn clean image imagerun install-dry install wail uninstall init ping www datawriter-companion
+.PHONY: all run run-gunicorn clean image imagerun install-dry install wail uninstall init ping www install-with-datagenerator

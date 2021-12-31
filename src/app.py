@@ -15,11 +15,11 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from taggedlist import TaggedLists, AnnotatedResults
 
 dotenv.load_dotenv()
-verbose = int(os.environ.get('VERBOSE','0'))
+verbose = int(os.environ.get('VERBOSE','4'))
 port = int(os.environ.get('PORT','5000'))
 datadir = os.environ.get('DATADIR','data')
 files = os.environ.get('FILES','model/hostlist.yaml,model/internal.yaml,model/external.yaml,model/./_docs/./*/*.json').split(',')
-tags = os.environ.get('TAGS','.').split(',')
+tags = os.environ.get('TAGS','.,service,user').split(',')
 
 logging.basicConfig(level=logging.WARNING-10*verbose,handlers=[logging.StreamHandler()],format="[%(levelname)s] %(message)s")
 
@@ -38,14 +38,13 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    results = None
+    results = {}
     errormsg = None
     try:
-        if 'q' in request.args:
+        if 'q' in request.args or 'f' in request.args:
             result = model.query_valueset(request.args.get('t'), request.args.get('i'))
             annotatedresult = AnnotatedResults(model,result)
-            if request.args.get('q'):
-                annotatedresult.search(request.args.get('q'))
+            annotatedresult.search(request.args.get('q'))
             annotatedresult.annotate()
             if request.args.get('f'):
                 annotatedresult.filter(request.args.get('f').split(' '))

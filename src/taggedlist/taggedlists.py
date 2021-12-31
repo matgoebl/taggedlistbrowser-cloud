@@ -53,7 +53,7 @@ class TaggedLists:
     def query_valueset(self, tag = '.', inputspec = None):
         if inputspec == None or inputspec == "":
             inputspec = "*"
-        if tag == '.':
+        if tag == '.' or tag == '' or tag == None:
             return self.keys(inputspec)
         else:
             return self.tags(tag, inputspec)

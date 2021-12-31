@@ -25,8 +25,10 @@ class AnnotatedResults:
                             self.items[item][label].append(filename)
 
     def search(self, expr):
+        if not expr:
+            return
         if expr.find('*') >= 0:
-            logging.debug(f"Searching regex {expr}")
+            logging.debug(f"Searching regex '{expr}'")
             regex = re.compile(expr)
             self.items = { k:v for k,v in self.items.items() if regex.match(k) }
         else:
@@ -36,12 +38,14 @@ class AnnotatedResults:
     def filter(self, filters):
         keep_items = []
         for filter in filters:
-            logging.debug(f"Filtering for {filter}")
-            (inputspec, filter) = filter.split(':',2)
+            logging.debug(f"Filtering for '{filter}'")
+            inputspec = None
+            if filter.find(':') >= 0:
+                (inputspec, filter) = filter.split(':',2)
             (tagspec, tagvalue) = filter.split('=',2)
             for item, annotation in self.items.items():
                 for input,tags in annotation.items():
-                    if input == inputspec:
+                    if inputspec == None or input == inputspec:
                         if tagvalue in find_tags(tagspec, -1, tags):
                             logging.debug(f"Filter found {tagvalue} in {input}:{tagspec}")
                             keep_items.append(item)
