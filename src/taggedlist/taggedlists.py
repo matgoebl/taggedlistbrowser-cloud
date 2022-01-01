@@ -60,3 +60,6 @@ class TaggedLists:
 
     def labels(self):
         return [ k for k,v in self.lists.items() ]
+
+    def list(self,listname):
+        return self.lists[listname]

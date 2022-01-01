@@ -15,7 +15,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 from taggedlist import TaggedLists, AnnotatedResults
 
 dotenv.load_dotenv()
-verbose = int(os.environ.get('VERBOSE','4'))
+verbose = int(os.environ.get('VERBOSE','1'))
 port = int(os.environ.get('PORT','5000'))
 datadir = os.environ.get('DATADIR','data')
 files = os.environ.get('FILES','model/hostlist.yaml,model/internal.yaml,model/external.yaml,model/./_docs/./*/*.json').split(',')
@@ -48,10 +48,12 @@ def index():
             annotatedresult.annotate()
             if request.args.get('f'):
                 annotatedresult.filter(request.args.get('f').split(' '))
-            results = annotatedresult.keys()
+            results = annotatedresult.results()
+            resultkeys = annotatedresult.keys()
     except Exception as e:
         errormsg = str(e)
-    return render_template('index.html.jinja', results=results, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags )
+    logging.debug(f"Results: {results}")
+    return render_template('index.html.jinja', results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags )
 
 
 @app.route('/id/<string:id>')
@@ -78,6 +80,18 @@ def detail(id):
         pass
 
     return render_template('detail.html.jinja', results=results, results_yaml=results_yaml, errormsg=errormsg, id=id, data=data)
+
+@app.route('/doc/<string:doc>/<path:id>')
+def doc(doc,id):
+    doc_json = None
+    errormsg = None
+    try:
+        result = model.list(doc)[id]
+        doc_json = json.dumps(result, indent=2)
+    except Exception as e:
+        errormsg = str(e)
+
+    return render_template('doc.html.jinja', doc_json=doc_json, errormsg=errormsg, id=id)
 
 
 @app.after_request

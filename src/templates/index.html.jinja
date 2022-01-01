@@ -32,23 +32,48 @@
  </td></tr>
  <tr><th align=right> Starting with (or RegEx): </th><td> <input type=input name=q value='{{ request.args.q or ".*" }}'> </td></tr>
  <tr><th align=right> Filter(s):                </th><td> <input type=input name=f value='{{ request.args.f }}'> </td></tr>
+ <tr><th align=right> Output:                   </th><td> 
+  <input type="checkbox" name="o" value="table"
+   {% if request.args.o == "table" %}
+    checked
+   {% endif %}
+  > Table
  <tr><th>                           </th><td> <input type=submit value='Search'> </td></tr>
 </table>
 </form>
 
 {% if request.args.q or request.args.f %}
  <h2>Results for {{ request.args.q | e }} {{ request.args.f | e }}</h2>
- <ul>
- {% for item in results %}
-  {% if request.args.t == '.' or request.args.t == '' or request.args.t is not defined %}
-   <li><a href="{{ url_for('detail', id=item) }}">{{ item }}</a></li> 
+ {% if request.args.o == "table" and ( request.args.t == '.' or request.args.t == '' or request.args.t is not defined ) %}
+  <table border=2>
+    <tr><th colspan=2>Host</th><th colspan=2>Internal</th><th colspan=2>External</th><th>Documents</th></tr>
+  {% for id, item in results.items() %}
+    <tr>
+     <td><a href="{{ url_for('detail', id=id) }}">{{ id }}</a></td>
+     <td>{% if item.hostlist is defined %}{% for i in item.hostlist %}{{i.info}}{% endfor %}{% endif %}</td>
+     <td>{% if item.internal is defined %}{% for i in item.internal %}{% if i.service is defined %}<a href="{{ url_for('index', f='internal:service=' + i.service) }}">{{ i.service }}</a>{% endif %}{% endfor %}{% endif %}</td>
+     <td>{% if item.internal is defined %}{% for i in item.internal %}{% if i.user    is defined %}<a href="{{ url_for('index', f='internal:user='    + i.user   ) }}">{{ i.user    }}</a>{% endif %}{% endfor %}{% endif %}</td>
+     <td>{% if item.external is defined %}{% for i in item.external %}{% if i.service is defined %}<a href="{{ url_for('index', f='external:service=' + i.service) }}">{{ i.service }}</a>{% endif %}{% endfor %}{% endif %}</td>
+     <td>{% if item.external is defined %}{% for i in item.external %}{% if i.user    is defined %}<a href="{{ url_for('index', f='external:user='    + i.user   ) }}">{{ i.user    }}</a>{% endif %}{% endfor %}{% endif %}</td>
+     <td>{% if item._docs is defined %}{% for i in item._docs %}<a href="{{ url_for('doc', doc='_docs', id=i ) }}">{{i}}</a> {% endfor %}{% endif %}</td>
+   </tr>
   {% else %}
-   <li><a href="{{ url_for('index', f=request.args.t + '=' + item) }}">{{ item }}</a></li> 
-  {% endif %}
+   <tr><td>No results.</td></tr>
+  {% endfor %}
+  </table>
  {% else %}
-  No results.
- {% endfor %}
- </ul>
+  <ul>
+  {% for item in resultkeys %}
+   {% if request.args.t == '.' or request.args.t == '' or request.args.t is not defined %}
+    <li><a href="{{ url_for('detail', id=item) }}">{{ item }}</a></li> 
+   {% else %}
+    <li><a href="{{ url_for('index', f=request.args.t + '=' + item) }}">{{ item }}</a></li> 
+   {% endif %}
+  {% else %}
+   No results.
+  {% endfor %}
+  </ul>
+ {% endif %}
 {% endif %}
 
 {% endblock content %}
