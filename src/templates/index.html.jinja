@@ -51,10 +51,10 @@
     <tr>
      <td><a href="{{ url_for('detail', id=id) }}">{{ id }}</a></td>
      <td>{% if item.hostlist is defined %}{% for i in item.hostlist %}{{i.info}}{% endfor %}{% endif %}</td>
-     <td>{% if item.internal is defined %}{% for i in item.internal %}{% if i.service is defined %}<a href="{{ url_for('index', f='internal:service=' + i.service) }}">{{ i.service }}</a>{% endif %}{% endfor %}{% endif %}</td>
-     <td>{% if item.internal is defined %}{% for i in item.internal %}{% if i.user    is defined %}<a href="{{ url_for('index', f='internal:user='    + i.user   ) }}">{{ i.user    }}</a>{% endif %}{% endfor %}{% endif %}</td>
-     <td>{% if item.external is defined %}{% for i in item.external %}{% if i.service is defined %}<a href="{{ url_for('index', f='external:service=' + i.service) }}">{{ i.service }}</a>{% endif %}{% endfor %}{% endif %}</td>
-     <td>{% if item.external is defined %}{% for i in item.external %}{% if i.user    is defined %}<a href="{{ url_for('index', f='external:user='    + i.user   ) }}">{{ i.user    }}</a>{% endif %}{% endfor %}{% endif %}</td>
+     <td>{% if item.internal is defined %}{% for i in item.internal %}{% if i.service is defined %}<a href="{{ url_for('index', o='table', f='internal:service=' + i.service) }}">{{ i.service }}</a>{% endif %}{% endfor %}{% endif %}</td>
+     <td>{% if item.internal is defined %}{% for i in item.internal %}{% if i.user    is defined %}<a href="{{ url_for('index', o='table', f='internal:user='    + i.user   ) }}">{{ i.user    }}</a>{% endif %}{% endfor %}{% endif %}</td>
+     <td>{% if item.external is defined %}{% for i in item.external %}{% if i.service is defined %}<a href="{{ url_for('index', o='table', f='external:service=' + i.service) }}">{{ i.service }}</a>{% endif %}{% endfor %}{% endif %}</td>
+     <td>{% if item.external is defined %}{% for i in item.external %}{% if i.user    is defined %}<a href="{{ url_for('index', o='table', f='external:user='    + i.user   ) }}">{{ i.user    }}</a>{% endif %}{% endfor %}{% endif %}</td>
      <td>{% if item._docs is defined %}{% for i in item._docs %}<a href="{{ url_for('doc', doc='_docs', id=i ) }}">{{i}}</a> {% endfor %}{% endif %}</td>
    </tr>
   {% else %}
@@ -67,7 +67,7 @@
    {% if request.args.t == '.' or request.args.t == '' or request.args.t is not defined %}
     <li><a href="{{ url_for('detail', id=item) }}">{{ item }}</a></li> 
    {% else %}
-    <li><a href="{{ url_for('index', f=request.args.t + '=' + item) }}">{{ item }}</a></li> 
+    <li><a href="{{ url_for('index', o='table', f=request.args.t + '=' + item) }}">{{ item }}</a></li> 
    {% endif %}
   {% else %}
    No results.

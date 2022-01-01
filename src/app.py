@@ -39,13 +39,15 @@ app = Flask(__name__)
 @app.route("/")
 def index():
     results = {}
+    resultkeys = []
     errormsg = None
     try:
         if 'q' in request.args or 'f' in request.args:
             result = model.query_valueset(request.args.get('t'), request.args.get('i'))
             annotatedresult = AnnotatedResults(model,result)
             annotatedresult.search(request.args.get('q'))
-            annotatedresult.annotate()
+            if request.args.get('f') == "table" or request.args.get('f'):
+                annotatedresult.annotate()
             if request.args.get('f'):
                 annotatedresult.filter(request.args.get('f').split(' '))
             results = annotatedresult.results()
@@ -91,7 +93,7 @@ def doc(doc,id):
     except Exception as e:
         errormsg = str(e)
 
-    return render_template('doc.html.jinja', doc_json=doc_json, errormsg=errormsg, id=id)
+    return render_template('doc.html.jinja', doc_json=doc_json, errormsg=errormsg, id=id, doc=doc)
 
 
 @app.after_request
