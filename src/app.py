@@ -14,7 +14,9 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 from taggedlist import TaggedLists, AnnotatedResults
 
-dotenv.load_dotenv()
+has_dotenv = True if os.environ.get('DOTENV') != None else False
+dotenv.load_dotenv(os.environ.get('DOTENV','.env'), verbose = has_dotenv, override = has_dotenv)
+
 verbose = int(os.environ.get('VERBOSE','1'))
 port = int(os.environ.get('PORT','5000'))
 datadir = os.environ.get('DATADIR','data')
@@ -46,7 +48,9 @@ def index():
             result = model.query_valueset(request.args.get('t'), request.args.get('i'))
             annotatedresult = AnnotatedResults(model,result)
             annotatedresult.search(request.args.get('q'))
-            if request.args.get('f') == "table" or request.args.get('f'):
+            if request.args.get('f') and request.args.get('f').find('=') < 0:
+                annotatedresult.filter(request.args.get('f').split(' '))
+            if request.args.get('o') == "table" or request.args.get('f'):
                 annotatedresult.annotate()
             if request.args.get('f'):
                 annotatedresult.filter(request.args.get('f').split(' '))
@@ -54,7 +58,7 @@ def index():
             resultkeys = annotatedresult.keys()
     except Exception as e:
         errormsg = str(e)
-    logging.debug(f"Results: {results}")
+    logging.debug(f"Results: {yaml.dump(results)}")
     return render_template('index.html.jinja', results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags )
 
 

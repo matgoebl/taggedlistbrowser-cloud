@@ -4,6 +4,9 @@
 {% block content %}
 
 <h2>Details about '{{ id }}'</h2>
+
+<a href="{{ url_for('index', o='table', q=id ) }}">&gt; Filter for key</a>
+
 <pre>
 {{ results_yaml }}
 </pre>

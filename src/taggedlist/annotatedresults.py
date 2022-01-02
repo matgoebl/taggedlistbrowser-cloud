@@ -52,6 +52,7 @@ class AnnotatedResults:
                                 keep_items.append(item)
             else:
                 keep_items = self.taggedlists.lists[inputspec][filter]['hosts']  # TODO: this is too usecase specific
+                logging.debug(f"Filtering for keys {keep_items}")
         self.items = { k:v for k,v in self.items.items() if k in keep_items }
 
     def keys(self):
