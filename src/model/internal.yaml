@@ -1,12 +1,12 @@
 test.example.de:
-- user: max
+  user: max
 
 dev.example.de:
-- user: max
+  user: max
 
 monitor.example.de:
-- service: MONITOR
+  service: MONITOR
 
 nested.example.com:
   something:
-  - user: deepjoe
+    user: deepjoe

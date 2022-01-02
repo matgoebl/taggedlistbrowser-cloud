@@ -1,23 +1,23 @@
 www.example.com:
-- info: Some example web service in US
+  info: Some example web service in US
 
 mail.example.com:
-- info: Some example mail service in US
+  info: Some example mail service in US
 
 www.example.de:
-- info: Some example web service in Germany
+  info: Some example web service in Germany
 
 mail.example.de:
-- info: Some example mail service in Germany
+  info: Some example mail service in Germany
 
 test.example.de:
-- info: Test setup
+  info: Test setup
 
 monitor.example.de:
-- info: Monitoring system
+  info: Monitoring system
 
 evil.example.com:
-- info: Code injection? <script>alert("bad")</script>,
+  info: Code injection? <script>alert("bad")</script>,
 
 nested.example.com:
-- info: Nested tags working?
+  info: Nested tags working?
