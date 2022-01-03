@@ -55,7 +55,7 @@ def index():
             if request.args.get('f'):
                 annotatedresult.filter(request.args.get('f').split(' '), tagspecs, docspec)
             if request.args.get('o') == "table":
-                annotatedresult.annotate()
+                annotatedresult.annotate(tagspecs)
             results = annotatedresult.results()
             resultkeys = annotatedresult.keys()
     except Exception as e:
@@ -68,11 +68,12 @@ def index():
 def detail(id):
     results = None
     errormsg = None
+    results_yaml = None
     try:
         result = model.query_valueset()
         annotatedresult = AnnotatedResults(model,result)
         annotatedresult.search(id)
-        annotatedresult.annotate()
+        annotatedresult.annotate(tagspecs)
         results = annotatedresult.results()
         results_yaml = yaml.dump(annotatedresult.results(),default_flow_style=False,encoding=None,width=160, indent=4)
     except Exception as e:
