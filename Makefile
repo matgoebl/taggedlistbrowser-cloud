@@ -3,7 +3,7 @@ IMAGE=taggedlistbrowser
 NAME=$(IMAGE)1
 WEBUSER=demo
 WEBPASS=Test-It!
-PYTHON_MODULES=flask python-dotenv PyYAML gunicorn
+PYTHON_MODULES=flask python-dotenv PyYAML gunicorn jsonpath-ng
 
 HELM_OPTS=--set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=latest --set basicAuthUsers.$(WEBUSER)=$(WEBPASS) --set image.pullPolicy=Always
 APP_URL:=$(shell echo "$(KUBEURL)/$(NAME)/" | sed -e "s|://|://$(WEBUSER):$(WEBPASS)@|")
@@ -17,7 +17,7 @@ requirements.txt: venv
 	. venv/bin/activate && pip3 freeze | grep -v pkg_resources==0.0.0 > requirements.txt
 
 run:	venv
-	. venv/bin/activate && cd src/ && python3 ./app.py
+	. venv/bin/activate && cd src/ && VERBOSE=2 python3 ./app.py
 
 run-gunicorn:	venv
 	. venv/bin/activate && cd src && gunicorn --bind 0.0.0.0:8888 --access-logfile - wsgi:app

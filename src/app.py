@@ -21,7 +21,11 @@ verbose = int(os.environ.get('VERBOSE','1'))
 port = int(os.environ.get('PORT','5000'))
 datadir = os.environ.get('DATADIR','data')
 files = os.environ.get('FILES','model/hostlist.yaml,model/internal.yaml,model/external.yaml,model/./_docs/./*/*.json').split(',')
-tags = os.environ.get('TAGS','.,service,user').split(',')
+tagspec = os.environ.get('TAGS','.,service,user')
+docspec = os.environ.get('DOCSPEC','hosts[*]')
+
+tagspecs = { t.split("=")[0]: t.split("=")[-1] for t in tagspec.split(",")}
+tags = [ t.split("=")[0] for t in tagspec.split(",")]
 
 logging.basicConfig(level=logging.WARNING-10*verbose,handlers=[logging.StreamHandler()],format="[%(levelname)s] %(message)s")
 
@@ -48,12 +52,10 @@ def index():
             result = model.query_valueset(request.args.get('t'), request.args.get('i'))
             annotatedresult = AnnotatedResults(model,result)
             annotatedresult.search(request.args.get('q'))
-            if request.args.get('f') and request.args.get('f').find('=') < 0:
-                annotatedresult.filter(request.args.get('f').split(' '))
-            if request.args.get('o') == "table" or request.args.get('f'):
-                annotatedresult.annotate()
             if request.args.get('f'):
-                annotatedresult.filter(request.args.get('f').split(' '))
+                annotatedresult.filter(request.args.get('f').split(' '), tagspecs, docspec)
+            if request.args.get('o') == "table":
+                annotatedresult.annotate()
             results = annotatedresult.results()
             resultkeys = annotatedresult.keys()
     except Exception as e:

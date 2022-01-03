@@ -1,6 +1,7 @@
 import logging
 import yaml
 import re
+import jsonpath_ng
 
 from taggedlist.helper import find_tags, has_obj_value
 
@@ -35,7 +36,7 @@ class AnnotatedResults:
             logging.debug(f"Searching substring {expr}")
             self.items = { k:v for k,v in self.items.items() if k.startswith(expr) }
 
-    def filter(self, filters):
+    def filter(self, filters, tagspecs = {}, docspec = ""):
         keep_items = []
         for filter in filters:
             logging.debug(f"Filtering for '{filter}'")
@@ -43,15 +44,16 @@ class AnnotatedResults:
             if filter.find(':') >= 0:
                 (inputspec, filter) = filter.split(':',2)
             if filter.find('=') >= 0:
-                (tagspec, tagvalue) = filter.split('=',2)
-                for item, annotation in self.items.items():
-                    for input,tags in annotation.items():
-                        if inputspec == None or input == inputspec:
-                            if tagvalue in find_tags(tagspec, -1, tags):
-                                logging.debug(f"Filter found {tagvalue} in {input}:{tagspec}")
-                                keep_items.append(item)
+                (tagpath, tagvalue) = filter.split('=',2)
+                jsonpath_expr = jsonpath_ng.parse(tagspecs[tagpath])
+                logging.debug(f"Filtering for {inputspec}:{tagspecs[tagpath]}({tagpath}) == {tagvalue}")
+                for item, tags in self.taggedlists.lists[inputspec].items():
+                    matches = [match.value for match in jsonpath_expr.find(tags)]
+                    if tagvalue in matches:
+                        logging.debug(f"Filter found {tagvalue} in {inputspec}:{tagpath}")
+                        keep_items.append(item)
             else:
-                keep_items = self.taggedlists.lists[inputspec][filter]['hosts']  # TODO: this is too usecase specific
+                keep_items = [match.value for match in jsonpath_ng.parse('hosts[*]').find(self.taggedlists.lists[inputspec][filter])]
                 logging.debug(f"Filtering for keys {keep_items}")
         self.items = { k:v for k,v in self.items.items() if k in keep_items }
 

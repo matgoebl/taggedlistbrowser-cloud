@@ -2,11 +2,15 @@ test.example.de:
   user: max
 
 dev.example.de:
-  user: max
+  user: joe
 
 monitor.example.de:
   service: MONITOR
 
+www.example.com:
+  user: max
+  service: WWW
+
 nested.example.com:
   something:
-    user: deepjoe
+    user: joe

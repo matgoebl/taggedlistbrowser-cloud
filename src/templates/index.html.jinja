@@ -55,7 +55,7 @@
      <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[2]] is defined %}<a href="{{ url_for('index', o='table', f=labels[2] + ':' + tags[2] + '=' + item[labels[2]][tags[2]] ) }}">{{ item[labels[2]][tags[2]] }}</a>{% endif %}{% endif %}</td>
      <td>{% if item[labels[3]] is defined %}{% if item[labels[3]][tags[1]] is defined %}<a href="{{ url_for('index', o='table', f=labels[3] + ':' + tags[1] + '=' + item[labels[3]][tags[1]] ) }}">{{ item[labels[3]][tags[1]] }}</a>{% endif %}{% endif %}</td>
      <td>{% if item[labels[3]] is defined %}{% if item[labels[3]][tags[2]] is defined %}<a href="{{ url_for('index', o='table', f=labels[3] + ':' + tags[2] + '=' + item[labels[3]][tags[2]] ) }}">{{ item[labels[3]][tags[2]] }}</a>{% endif %}{% endif %}</td>
-     <td>{% if item[labels[4]] is defined %}{% for i in item[labels[4]] %}<a href="{{ url_for('doc', doc=labels[4], id=i ) }}">{{item[labels[4]]}}</a> &nbsp; {% endfor %}{% endif %}</td>
+     <td>{% if item[labels[4]] is defined %}{% for i in item[labels[4]] %}<a href="{{ url_for('doc', doc=labels[4], id=i ) }}">{{i}}</a> &nbsp; {% endfor %}{% endif %}</td>
    </tr>
   {% else %}
    <tr><td>No results.</td></tr>
