@@ -7,6 +7,7 @@ import json
 import os
 import logging
 import yaml
+import glob
 from string import Template
 from flask import Flask, request, render_template
 from jinja2 import Environment, select_autoescape
@@ -79,12 +80,13 @@ def detail(id):
     except Exception as e:
         errormsg = str(e)
 
-    data = None
+    data = {}
     try:
-        with open(datadir + "/" + id + '.json', 'r') as f:
-            data = json.load(f)
-            f.close()
-            data = json.dumps(data, indent=2)
+        filenames = sorted(glob.glob(datadir + "/" + id + '.*json'))
+        for filename in filenames:
+            with open(filename, 'r') as f:
+                data['.'.join(os.path.basename(filename).split('.')[:-1])] = json.dumps(json.load(f), indent=2)
+                f.close()
     except:
         pass
 

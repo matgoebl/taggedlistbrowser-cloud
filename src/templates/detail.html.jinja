@@ -11,9 +11,12 @@
 {{ results_yaml }}
 </pre>
 
-% if data != None
+% if data != {}
 <h2>Data</h2>
-<pre>{{ data }}</pre>
+ {% for id, item in data.items() %}
+  <h3>{{id}}</h3>
+  <pre>{{ item }}</pre>
+ {% endfor %}
 %endif
 
 {% endblock content %}
