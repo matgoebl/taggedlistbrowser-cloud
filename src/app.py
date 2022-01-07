@@ -8,8 +8,10 @@ import os
 import logging
 import yaml
 import glob
+import copy
+import datetime
 from string import Template
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, g
 from jinja2 import Environment, select_autoescape
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -24,11 +26,15 @@ datadir = os.environ.get('DATADIR','data')
 files = os.environ.get('FILES','model/hostlist.yaml,model/internal.yaml,model/external.yaml,model/./_docs/./*/*.json').split(',')
 tagspec = os.environ.get('TAGS','.,service,user')
 docspec = os.environ.get('DOCSPEC','hosts[*]')
+preannotated_model = os.environ.get('PREANNOTATION','0') == 1
+apptitle = os.environ.get('APPTITLE','Tagged List Browser')
 
 tagspecs = { t.split("=")[0]: t.split("=")[-1] for t in tagspec.split(",")}
 tags = [ t.split("=")[0] for t in tagspec.split(",")]
 
 logging.basicConfig(level=logging.WARNING-10*verbose,handlers=[logging.StreamHandler()],format="[%(levelname)s] %(message)s")
+
+init_start_time = datetime.datetime.now()
 
 model = TaggedLists()
 model.load_files(files)
@@ -43,6 +49,16 @@ Flask.jinja_options = {
 app = Flask(__name__)
 
 
+if preannotated_model:
+    logging.debug(f"Prepare full annotated model...")
+    result = model.query_valueset()
+    annotatedresult_main = AnnotatedResults(model,result)
+    annotatedresult_main.annotate(tagspecs)
+
+init_duration = datetime.datetime.now() - init_start_time
+logging.info(f"done. Initialization took {init_duration.total_seconds():.3f} seconds.")
+
+
 @app.route("/")
 def index():
     results = {}
@@ -50,19 +66,23 @@ def index():
     errormsg = None
     try:
         if 'q' in request.args or 'f' in request.args:
-            result = model.query_valueset(request.args.get('t'), request.args.get('i'))
-            annotatedresult = AnnotatedResults(model,result)
+            preannotation_usable = (request.args.get('t') == "." or request.args.get('t') == None) and (request.args.get('i') == "*" or request.args.get('i') == None) and preannotated_model == True
+            if preannotation_usable:
+                annotatedresult = copy.deepcopy(annotatedresult_main)
+            else:
+                result = model.query_valueset(request.args.get('t'), request.args.get('i'))
+                annotatedresult = AnnotatedResults(model,result)
             annotatedresult.search(request.args.get('q'))
             if request.args.get('f'):
                 annotatedresult.filter(request.args.get('f').split(' '), tagspecs, docspec)
-            if request.args.get('o') == "table":
+            if request.args.get('o') == "table" and not preannotation_usable:
                 annotatedresult.annotate(tagspecs)
             results = annotatedresult.results()
             resultkeys = annotatedresult.keys()
     except Exception as e:
-        errormsg = str(e)
+        errormsg = repr(e)
     logging.debug(f"Results: {yaml.dump(results)}")
-    return render_template('index.html.jinja', results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags )
+    return render_template('index.html.jinja', results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags, apptitle=apptitle )
 
 
 @app.route('/id/<string:id>')
@@ -71,14 +91,18 @@ def detail(id):
     errormsg = None
     results_yaml = None
     try:
-        result = model.query_valueset()
-        annotatedresult = AnnotatedResults(model,result)
-        annotatedresult.search(id)
-        annotatedresult.annotate(tagspecs)
+        if preannotated_model:
+            annotatedresult = copy.deepcopy(annotatedresult_main)
+            annotatedresult.search(id)
+        else:
+            result = model.query_valueset()
+            annotatedresult = AnnotatedResults(model,result)
+            annotatedresult.search(id)
+            annotatedresult.annotate(tagspecs)
         results = annotatedresult.results()
         results_yaml = yaml.dump(annotatedresult.results(),default_flow_style=False,encoding=None,width=160, indent=4)
     except Exception as e:
-        errormsg = str(e)
+        errormsg = repr(e)
 
     data = {}
     try:
@@ -90,7 +114,7 @@ def detail(id):
     except:
         pass
 
-    return render_template('detail.html.jinja', results=results, results_yaml=results_yaml, errormsg=errormsg, id=id, data=data)
+    return render_template('detail.html.jinja', results=results, results_yaml=results_yaml, errormsg=errormsg, id=id, data=data, apptitle=apptitle )
 
 @app.route('/doc/<string:doc>/<path:id>')
 def doc(doc,id):
@@ -100,15 +124,25 @@ def doc(doc,id):
         result = model.list(doc)[id]
         doc_json = json.dumps(result, indent=2)
     except Exception as e:
-        errormsg = str(e)
+        errormsg = repr(e)
 
-    return render_template('doc.html.jinja', doc_json=doc_json, errormsg=errormsg, id=id, doc=doc)
+    return render_template('doc.html.jinja', doc_json=doc_json, errormsg=errormsg, id=id, doc=doc, apptitle=apptitle )
 
+
+@app.before_request
+def before_request():
+  g.time_start = datetime.datetime.now()
 
 @app.after_request
 def add_header(response):
     if 'Cache-Control' not in response.headers:
         response.headers["Cache-Control"] = "no-store, max-age=0"
+
+    page_duration = datetime.datetime.now() - g.time_start
+    page_duration_fmt = f"{page_duration.total_seconds():.3f}"
+    if response.response and 200 <= response.status_code < 300 and response.content_type.startswith('text/html'):
+        response.set_data(response.get_data().replace(b'%PAGETIME%', bytes(page_duration_fmt, 'utf-8')))
+
     return response
 
 app.wsgi_app = ProxyFix(app.wsgi_app, x_prefix=1)

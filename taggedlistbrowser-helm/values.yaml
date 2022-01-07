@@ -91,3 +91,13 @@ affinity: {}
 companioncontainer:
   enabled: false
   repository: ""
+
+env:
+  VERBOSE: "1"
+  PORT: "5000"
+  DATADIR: "data"
+  FILES: "model/hostlist.yaml,model/internal.yaml,model/external.yaml,model/./_docs/./*/*.json"
+  TAGS: ".,service,user"
+  DOCSPEC: "hosts[*]"
+  PREANNOTATION: "1"
+  APPTITLE: "Tagged List Browser Cloud"
