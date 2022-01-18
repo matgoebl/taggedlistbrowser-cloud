@@ -12,6 +12,7 @@ import copy
 import datetime
 from string import Template
 from flask import Flask, request, render_template, g
+from flask_basicauth import BasicAuth
 from jinja2 import Environment, select_autoescape
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -28,6 +29,8 @@ tagspec = os.environ.get('TAGS','.,service,user')
 docspec = os.environ.get('DOCSPEC','hosts[*]')
 preannotated_model = os.environ.get('PREANNOTATION','0') == "1"
 apptitle = os.environ.get('APPTITLE','Tagged List Browser')
+auth_user = os.environ.get('BASIC_AUTH_USERNAME')
+auth_pass = os.environ.get('BASIC_AUTH_PASSWORD')
 
 tagspecs = { t.split("=")[0]: t.split("=")[-1] for t in tagspec.split(",")}
 tags = [ t.split("=")[0] for t in tagspec.split(",")]
@@ -47,6 +50,12 @@ Flask.jinja_options = {
     'line_statement_prefix': '%'
 }
 app = Flask(__name__)
+
+if auth_user and auth_pass:
+    app.config['BASIC_AUTH_USERNAME'] = auth_user
+    app.config['BASIC_AUTH_PASSWORD'] = auth_pass
+    app.config['BASIC_AUTH_FORCE'] = True
+    basic_auth = BasicAuth(app)
 
 
 if preannotated_model:
@@ -130,7 +139,7 @@ def doc(doc,id):
 
 
 @app.before_request
-def before_request():
+def start_timer():
   g.time_start = datetime.datetime.now()
 
 @app.after_request
@@ -138,10 +147,11 @@ def add_header(response):
     if 'Cache-Control' not in response.headers:
         response.headers["Cache-Control"] = "no-store, max-age=0"
 
-    page_duration = datetime.datetime.now() - g.time_start
-    page_duration_fmt = f"{page_duration.total_seconds():.3f}"
-    if response.response and 200 <= response.status_code < 300 and response.content_type.startswith('text/html'):
-        response.set_data(response.get_data().replace(b'%PAGETIME%', bytes(page_duration_fmt, 'utf-8')))
+    if 'time_start' in g:
+        page_duration = datetime.datetime.now() - g.time_start
+        page_duration_fmt = f"{page_duration.total_seconds():.3f}"
+        if response.response and 200 <= response.status_code < 300 and response.content_type.startswith('text/html'):
+            response.set_data(response.get_data().replace(b'%PAGETIME%', bytes(page_duration_fmt, 'utf-8')))
 
     return response
 

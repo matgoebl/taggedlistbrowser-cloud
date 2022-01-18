@@ -3,7 +3,7 @@ IMAGE=taggedlistbrowser
 NAME=$(IMAGE)1
 WEBUSER=demo
 WEBPASS=Test-It!
-PYTHON_MODULES=flask python-dotenv PyYAML gunicorn jsonpath-ng
+PYTHON_MODULES=flask flask_basicauth python-dotenv PyYAML gunicorn jsonpath-ng
 
 HELM_OPTS=--set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=latest --set basicAuthUsers.$(WEBUSER)=$(WEBPASS) --set image.pullPolicy=Always
 APP_URL:=$(shell echo "$(KUBEURL)/$(NAME)/" | sed -e "s|://|://$(WEBUSER):$(WEBPASS)@|")
