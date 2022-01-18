@@ -58,4 +58,4 @@ install-with-datagenerator:
 	cd datagenerator/ && make
 	make HELM_OPTS="$(HELM_OPTS) --set companioncontainer.enabled=true --set companioncontainer.repository=$(DOCKER_REGISTRY)/datagenerator" install
 
-.PHONY: all run run-gunicorn clean image imagerun install-dry install wail uninstall init ping www install-with-datagenerator
+.PHONY: all run run-gunicorn clean image imagerun install-dry install wait uninstall init ping www install-with-datagenerator

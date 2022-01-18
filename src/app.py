@@ -26,7 +26,7 @@ datadir = os.environ.get('DATADIR','data')
 files = os.environ.get('FILES','model/hostlist.yaml,model/internal.yaml,model/external.yaml,model/./_docs/./*/*.json').split(',')
 tagspec = os.environ.get('TAGS','.,service,user')
 docspec = os.environ.get('DOCSPEC','hosts[*]')
-preannotated_model = os.environ.get('PREANNOTATION','0') == 1
+preannotated_model = os.environ.get('PREANNOTATION','0') == "1"
 apptitle = os.environ.get('APPTITLE','Tagged List Browser')
 
 tagspecs = { t.split("=")[0]: t.split("=")[-1] for t in tagspec.split(",")}
