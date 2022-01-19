@@ -1,6 +1,7 @@
 #IMAGE=$(shell basename $(PWD))
 IMAGE=taggedlistbrowser
 NAME=$(IMAGE)1
+NAMESPACE=default
 WEBUSER=demo
 WEBPASS=Test-It!
 PYTHON_MODULES=flask flask_basicauth python-dotenv PyYAML gunicorn jsonpath-ng
@@ -36,17 +37,17 @@ imagerun: requirements.txt
 	docker run -it $(IMAGE)
 
 install-dry:
-	helm install --dry-run --debug $(HELM_OPTS) $(NAME) ./$(IMAGE)-helm
+	helm install --dry-run --debug $(HELM_OPTS) --namespace=$(NAMESPACE) $(NAME) ./taggedlistbrowser-helm
 
 install: uninstall image
-	helm lint ./$(IMAGE)-helm
-	helm install $(HELM_OPTS) $(NAME) ./$(IMAGE)-helm
+	helm lint ./taggedlistbrowser-helm
+	helm install $(HELM_OPTS) --namespace=$(NAMESPACE) $(NAME) ./taggedlistbrowser-helm
 
 wait:
 	sleep 15
 
 uninstall:
-	-helm uninstall $(NAME)
+	-helm uninstall --namespace=$(NAMESPACE) $(NAME)
 
 ping:
 	curl -si "$(APP_URL)"
