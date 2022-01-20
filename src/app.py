@@ -61,8 +61,8 @@ if auth_user and auth_pass:
 if preannotated_model:
     logging.debug(f"Prepare full annotated model...")
     result = model.query_valueset()
-    annotatedresult_main = AnnotatedResults(model,result)
-    annotatedresult_main.annotate(tagspecs)
+    annotatedresult_main = AnnotatedResults(model, result)
+    annotatedresult_main.preannotate(tagspecs, docspec)
 
 init_duration = datetime.datetime.now() - init_start_time
 logging.info(f"done. Initialization took {init_duration.total_seconds():.3f} seconds.")
@@ -81,7 +81,8 @@ def index():
             else:
                 result = model.query_valueset(request.args.get('t'), request.args.get('i'))
                 annotatedresult = AnnotatedResults(model,result)
-            annotatedresult.search(request.args.get('q').split())
+            if request.args.get('q'):
+                annotatedresult.search(request.args.get('q').split())
             if request.args.get('f'):
                 annotatedresult.filter(request.args.get('f').split(), tagspecs, docspec)
             if ( request.args.get('o') == "table" or request.args.get('o') == "yaml" ) and not preannotation_usable:

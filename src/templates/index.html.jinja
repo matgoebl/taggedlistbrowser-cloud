@@ -53,6 +53,11 @@
 </form>
 
 {% if request.args.q or request.args.f %}
+{% set currfilter = '' %}
+{% if request.args.f %}
+{%  set currfilter = request.args.f + ' ' %}
+{% endif %}
+
  <h2>Results for {{ request.args.q | e }} {{ request.args.f | e }}</h2>
  {% if request.args.o == "table" and ( request.args.t == '.' or request.args.t == '' or request.args.t is not defined ) %}
   <table border=2>
@@ -62,10 +67,10 @@
     <tr>
      <td><a href="{{ url_for('detail', id=id) }}">{{ id }}</a></td>
      <td>{% if item[labels[1]] is defined %}{{item[labels[1]].info|join(' ')}}{% endif %}</td>
-     <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[1]] is defined %}{% for i in item[labels[2]][tags[1]] %}<a href="{{ url_for('index', o='table', f=labels[2] + ':' + tags[1] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
-     <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[2]] is defined %}{% for i in item[labels[2]][tags[2]] %}<a href="{{ url_for('index', o='table', f=labels[2] + ':' + tags[2] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
-     <td>{% if item[labels[3]] is defined %}{% if item[labels[3]][tags[1]] is defined %}{% for i in item[labels[3]][tags[1]] %}<a href="{{ url_for('index', o='table', f=labels[3] + ':' + tags[1] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
-     <td>{% if item[labels[3]] is defined %}{% if item[labels[3]][tags[2]] is defined %}{% for i in item[labels[3]][tags[2]] %}<a href="{{ url_for('index', o='table', f=labels[3] + ':' + tags[2] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
+     <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[1]] is defined %}{% for i in item[labels[2]][tags[1]] %}<a href="{{ url_for('index', o='table', f=currfilter + labels[2] + ':' + tags[1] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
+     <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[2]] is defined %}{% for i in item[labels[2]][tags[2]] %}<a href="{{ url_for('index', o='table', f=currfilter + labels[2] + ':' + tags[2] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
+     <td>{% if item[labels[3]] is defined %}{% if item[labels[3]][tags[1]] is defined %}{% for i in item[labels[3]][tags[1]] %}<a href="{{ url_for('index', o='table', f=currfilter + labels[3] + ':' + tags[1] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
+     <td>{% if item[labels[3]] is defined %}{% if item[labels[3]][tags[2]] is defined %}{% for i in item[labels[3]][tags[2]] %}<a href="{{ url_for('index', o='table', f=currfilter + labels[3] + ':' + tags[2] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
      <td>{% if item[labels[4]] is defined %}{% for i in item[labels[4]] %}<a href="{{ url_for('doc', doc=labels[4], id=i ) }}">{{i.split('/')[0]}}</a> &nbsp; {% endfor %}{% endif %}</td>
    </tr>
   {% endfor %}
