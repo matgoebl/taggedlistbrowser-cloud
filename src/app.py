@@ -11,7 +11,7 @@ import glob
 import copy
 import datetime
 from string import Template
-from flask import Flask, request, render_template, g
+from flask import Flask, request, render_template, make_response, g
 from flask_basicauth import BasicAuth
 from jinja2 import Environment, select_autoescape
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -84,13 +84,19 @@ def index():
             annotatedresult.search(request.args.get('q').split())
             if request.args.get('f'):
                 annotatedresult.filter(request.args.get('f').split(), tagspecs, docspec)
-            if request.args.get('o') == "table" and not preannotation_usable:
+            if ( request.args.get('o') == "table" or request.args.get('o') == "yaml" ) and not preannotation_usable:
                 annotatedresult.annotate(tagspecs)
             results = annotatedresult.results()
             resultkeys = annotatedresult.keys()
     except Exception as e:
         errormsg = repr(e)
     logging.debug(f"Results: {yaml.dump(results)}")
+
+    if request.args.get('o') == "yaml" and not errormsg:
+        response = make_response(yaml.dump(results), 200)
+        response.mimetype = "text/plain"
+        return response
+
     return render_template('index.html.jinja', results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags, apptitle=apptitle )
 
 

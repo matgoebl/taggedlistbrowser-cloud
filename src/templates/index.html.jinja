@@ -30,14 +30,24 @@
    {% endfor %}
   </select>
  </td></tr>
- <tr><th align=right valign=top> Starting with (or RegEx): </th><td> <textarea name=q rows='5' cols='50'>{{ request.args.q or ".*" }}</textarea> <br>(separate multiple search string with whitespace, uses "or" conjunction)</td></tr>
+ <tr><th align=right valign=top> Starting with (or RegEx): </th><td> <textarea name=q rows='5' cols='50'>{{ request.args.q or "*" }}</textarea> <br>(separate multiple search string with whitespace, uses "or" conjunction)</td></tr>
  <tr><th align=right> Filter(s):                </th><td> <input type=input name=f size='50' value='{{ request.args.f }}'> <br>(separate multiple filters by whitespace, uses "and" conjunction)</td></tr>
  <tr><th align=right> Output:                   </th><td> 
-  <input type="checkbox" name="o" value="table"
+  <input type="radio" name="o" value="list"
+   {% if request.args.o == "list" or request.args.o is not defined %}
+    checked
+   {% endif %}
+  >List
+  <input type="radio" name="o" value="table"
    {% if request.args.o == "table" %}
     checked
    {% endif %}
   > Table
+  <input type="radio" name="o" value="yaml"
+   {% if request.args.o == "yaml" %}
+    checked
+   {% endif %}
+  > YAML
  <tr><th>                           </th><td> <input type=submit value='Search'> </td></tr>
 </table>
 </form>

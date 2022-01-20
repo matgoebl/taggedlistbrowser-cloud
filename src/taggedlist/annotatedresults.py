@@ -2,6 +2,7 @@ import logging
 import yaml
 import re
 import jsonpath_ng
+import fnmatch
 
 from taggedlist.helper import find_tags, has_obj_value
 
@@ -39,13 +40,13 @@ class AnnotatedResults:
             return
         new_items = {}
         for expr in exprs:
-            if expr.find('*') >= 0:
+            if expr.startswith( '/'):
                 logging.debug(f"Searching regex '{expr}'")
-                regex = re.compile(expr)
+                regex = re.compile(expr[1:])
                 new_items.update( { k:v for k,v in self.items.items() if regex.match(k) } )
             else:
-                logging.debug(f"Searching substring {expr}")
-                new_items.update( { k:v for k,v in self.items.items() if k.startswith(expr) } )
+                logging.debug(f"Searching string {expr}")
+                new_items.update( { k:v for k,v in self.items.items() if fnmatch.fnmatch(k,expr) } )
         self.items = new_items
 
     def filter(self, filters, tagspecs = {}, docspec = ""):
