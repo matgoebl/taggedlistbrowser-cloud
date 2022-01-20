@@ -81,9 +81,9 @@ def index():
             else:
                 result = model.query_valueset(request.args.get('t'), request.args.get('i'))
                 annotatedresult = AnnotatedResults(model,result)
-            annotatedresult.search(request.args.get('q'))
+            annotatedresult.search(request.args.get('q').split())
             if request.args.get('f'):
-                annotatedresult.filter(request.args.get('f').split(' '), tagspecs, docspec)
+                annotatedresult.filter(request.args.get('f').split(), tagspecs, docspec)
             if request.args.get('o') == "table" and not preannotation_usable:
                 annotatedresult.annotate(tagspecs)
             results = annotatedresult.results()
@@ -102,11 +102,11 @@ def detail(id):
     try:
         if preannotated_model:
             annotatedresult = copy.deepcopy(annotatedresult_main)
-            annotatedresult.search(id)
+            annotatedresult.search([id])
         else:
             result = model.query_valueset()
             annotatedresult = AnnotatedResults(model,result)
-            annotatedresult.search(id)
+            annotatedresult.search([id])
             annotatedresult.annotate(tagspecs)
         results = annotatedresult.results()
         results_yaml = yaml.dump(annotatedresult.results(),default_flow_style=False,encoding=None,width=160, indent=4)

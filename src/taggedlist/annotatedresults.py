@@ -34,21 +34,25 @@ class AnnotatedResults:
                             self.items[item][label].append(filename)
         self.is_annotated = True
 
-    def search(self, expr):
-        if not expr:
+    def search(self, exprs):
+        if not exprs:
             return
-        if expr.find('*') >= 0:
-            logging.debug(f"Searching regex '{expr}'")
-            regex = re.compile(expr)
-            self.items = { k:v for k,v in self.items.items() if regex.match(k) }
-        else:
-            logging.debug(f"Searching substring {expr}")
-            self.items = { k:v for k,v in self.items.items() if k.startswith(expr) }
+        new_items = {}
+        for expr in exprs:
+            if expr.find('*') >= 0:
+                logging.debug(f"Searching regex '{expr}'")
+                regex = re.compile(expr)
+                new_items.update( { k:v for k,v in self.items.items() if regex.match(k) } )
+            else:
+                logging.debug(f"Searching substring {expr}")
+                new_items.update( { k:v for k,v in self.items.items() if k.startswith(expr) } )
+        self.items = new_items
 
     def filter(self, filters, tagspecs = {}, docspec = ""):
-        keep_items = []
+        all_keep_items = [ k for k,v in self.items.items() ]
         for filter in filters:
             logging.debug(f"Filtering for '{filter}'")
+            keep_items = []
             inputspec = None
             if filter.find(':') >= 0:
                 (inputspec, filter) = filter.split(':',2)
@@ -70,7 +74,8 @@ class AnnotatedResults:
             else:
                 keep_items = [match.value for match in jsonpath_ng.parse(docspec).find(self.taggedlists.lists[inputspec][filter])]
                 logging.debug(f"Filtering for keys {keep_items}")
-        self.items = { k:v for k,v in self.items.items() if k in keep_items }
+            all_keep_items = [ k for k in all_keep_items if k in keep_items ]
+        self.items = { k:v for k,v in self.items.items() if k in all_keep_items }
 
     def keys(self):
         return [ k for k,v in self.items.items() ]
