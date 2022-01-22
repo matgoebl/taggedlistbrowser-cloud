@@ -31,17 +31,18 @@ class TaggedLists:
             return {listname: self.lists[listname]}
 
     def keys(self,listname):
-        keys=[]
+        keys = {}
         lists = self.get_lists(listname)
         for label, list in lists.items():
-            logging.info(f"Keys in list {label}")
+            logging.debug(f"Keys in list {label}")
             if listname == "*" and label.startswith('_'):
                 continue
             for key,value in list.items():
-                if key not in keys:
-                    keys.append(key)
-        keys.sort()
-        return keys
+                if key.lower() not in keys:
+                    keys[key.lower()] = key
+        keys_with_capitalization = [ v for k,v in keys.items() ]
+        keys_with_capitalization.sort()
+        return keys_with_capitalization
 
     def tags(self, name, listname):
         lists = self.get_lists(listname)

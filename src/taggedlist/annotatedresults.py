@@ -10,8 +10,9 @@ class AnnotatedResults:
     def __init__(self,lists,items):
         self.taggedlists = lists
         self.items = {}
+        self.capitalization_map = {}
         for item in items:
-            self.items[item] = {}
+            self.add_item(item)
         self.is_annotated = False
 
     def annotate(self, tagspecs = {}):
@@ -53,6 +54,10 @@ class AnnotatedResults:
         self.is_annotated = True
 
     def add_item(self, item, label = None, tag = None, data = None ):
+        if item.lower() in self.capitalization_map:
+            item = self.capitalization_map[item.lower()]
+        else:
+            self.capitalization_map[item.lower()] = item
         if not item in self.items:
             self.items[item] = {}
         if not label or not tag:
