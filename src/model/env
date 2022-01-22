@@ -1,0 +1,3 @@
+FILES="model/hostlist.yaml,model/internal.yaml,model/external.yaml,model/./_docs/./*/*.json"
+TAGS=".,service,user"
+DOCSPEC="hosts[*]"
