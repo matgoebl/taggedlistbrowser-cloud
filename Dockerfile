@@ -9,4 +9,4 @@ WORKDIR /app
 EXPOSE 5000
 USER user
 #CMD ["python3", "app.py"]
-CMD gunicorn --bind 0.0.0.0:5000 --access-logfile - wsgi:app
+CMD ["./gunicorn_app.py"]

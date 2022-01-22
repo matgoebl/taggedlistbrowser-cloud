@@ -55,6 +55,9 @@ ping:
 www:
 	w3m -o confirm_qq=false "$(APP_URL)"
 
+http_yaml:
+	curl -si "$(APP_URL)?i=*&t=.&q=&f=&o=yaml"
+
 install-with-datagenerator:
 	cd datagenerator/ && make
 	make HELM_OPTS="$(HELM_OPTS) --set companioncontainer.enabled=true --set companioncontainer.repository=$(DOCKER_REGISTRY)/datagenerator" install

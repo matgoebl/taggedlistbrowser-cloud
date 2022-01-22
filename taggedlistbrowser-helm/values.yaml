@@ -101,3 +101,4 @@ env:
   DOCSPEC: "hosts[*]"
   PREANNOTATION: "1"
   APPTITLE: "Tagged List Browser Cloud"
+  WORKERS: "2"
