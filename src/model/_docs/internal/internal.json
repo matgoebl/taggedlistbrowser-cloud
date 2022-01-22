@@ -4,6 +4,7 @@
  "hosts": [
   "test.example.de",
   "dev.example.de",
-  "monitor.example.de"
+  "monitor.example.de",
+  "obsolete.example.de"
  ]
 }

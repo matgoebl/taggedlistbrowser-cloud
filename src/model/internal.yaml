@@ -14,3 +14,7 @@ www.example.com:
 nested.example.com:
   something:
     user: joe
+
+internal.example.com:
+  user: joe
+  service: MONITOR
