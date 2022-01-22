@@ -16,22 +16,20 @@ class AnnotatedResults:
 
     def annotate(self, tagspecs = {}):
         for item in self.items:
-            self.items[item] = {}
+            self.add_item(item)
             for label, list in self.taggedlists.lists.items():
                 if item in list:
-                    self.items[item][label] = { 'data': list[item] }
+                    self.add_item(item, label, 'data', list[item])
                     for tag, tagpath in tagspecs.items():
                         if tag == '.':
                             continue
                         jsonpath_expr = jsonpath_ng.parse(tagpath)
                         matches = [match.value for match in jsonpath_expr.find(list[item])]
-                        self.items[item][label][tag]=matches
+                        self.add_item(item, label, tag, matches)
                 elif label.startswith('_'):
                     for filename, doc in list.items():
                         if has_obj_value(item, -1, doc):
-                            if not label in self.items[item]:
-                                self.items[item][label] = {}
-                            self.items[item][label][filename] = None
+                            self.add_item(item,label,filename)
         self.is_annotated = True
 
     def preannotate(self, tagspecs = {}, docspec = ""):
