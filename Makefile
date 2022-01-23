@@ -5,7 +5,7 @@ NAMESPACE=default
 WEBUSER=demo
 WEBPASS=Test-It!
 PYTHON_MODULES=flask flask_basicauth python-dotenv PyYAML gunicorn jsonpath-ng
-export BUILDTAG=$(shell date +%Y%m%d.%H%M%S)
+export BUILDTAG:=$(shell date +%Y%m%d.%H%M%S)
 
 HELM_OPTS:=--set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=$(BUILDTAG) --set basicAuthUsers.$(WEBUSER)=$(WEBPASS) --set image.pullPolicy=Always
 APP_URL:=$(shell echo "$(KUBEURL)/$(NAME)/" | sed -e "s|://|://$(WEBUSER):$(WEBPASS)@|")
