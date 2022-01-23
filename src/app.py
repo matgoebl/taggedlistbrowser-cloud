@@ -122,7 +122,7 @@ def detail(id):
 
     data = {}
     try:
-        filenames = sorted(glob.glob(datadir + "/" + id + '.*json'))
+        filenames = sorted(glob.glob(datadir + "/" + id.lower() + '_*.json'))
         for filename in filenames:
             with open(filename, 'r') as f:
                 data['.'.join(os.path.basename(filename).split('.')[:-1])] = json.dumps(json.load(f), indent=2)

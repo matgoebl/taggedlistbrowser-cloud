@@ -5,8 +5,9 @@ NAMESPACE=default
 WEBUSER=demo
 WEBPASS=Test-It!
 PYTHON_MODULES=flask flask_basicauth python-dotenv PyYAML gunicorn jsonpath-ng
+export BUILDTAG=$(shell date +%Y%m%d.%H%M%S)
 
-HELM_OPTS=--set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=latest --set basicAuthUsers.$(WEBUSER)=$(WEBPASS) --set image.pullPolicy=Always
+HELM_OPTS:=--set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=$(BUILDTAG) --set basicAuthUsers.$(WEBUSER)=$(WEBPASS) --set image.pullPolicy=Always
 APP_URL:=$(shell echo "$(KUBEURL)/$(NAME)/" | sed -e "s|://|://$(WEBUSER):$(WEBPASS)@|")
 
 all: install-with-datagenerator wait ping
@@ -28,9 +29,9 @@ clean:
 	find -name __pycache__ -type d -exec rm -rf '{}' ';' 2>/dev/null || true
 
 image: requirements.txt
-	docker build -t $(IMAGE) .
-	docker tag $(IMAGE) $(DOCKER_REGISTRY)/$(IMAGE)
-	docker push $(DOCKER_REGISTRY)/$(IMAGE)
+	docker build --build-arg BUILDTAG=$(BUILDTAG) -t $(IMAGE) .
+	docker tag $(IMAGE) $(DOCKER_REGISTRY)/$(IMAGE):$(BUILDTAG)
+	docker push $(DOCKER_REGISTRY)/$(IMAGE):$(BUILDTAG)
 
 imagerun: requirements.txt
 	docker build -t $(IMAGE) .

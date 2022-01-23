@@ -5,7 +5,10 @@ RUN pip3 install --no-cache-dir --no-build-isolation -r /requirements.txt && rm 
 RUN adduser --uid 1000 --home /app --no-create-home --disabled-password --gecos User --shell /bin/sh user
 #RUN adduser -u 1000 -h /app -H -D -g User -s /bin/sh user
 COPY src/ /app
-RUN date +%Y-%m-%d_%H-%M-%SZ > /app/templates/build.txt
+RUN mkdir -p /app/data && chown 1000 /app/data
+ARG BUILDTAG=unknown
+ENV BUILDTAG=${BUILDTAG}
+RUN echo "${BUILDTAG}" > /app/templates/build.txt
 WORKDIR /app
 EXPOSE 5000
 USER user
