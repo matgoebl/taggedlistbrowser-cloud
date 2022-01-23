@@ -25,7 +25,7 @@ run-gunicorn:	venv
 
 clean:
 	rm -rf venv requirements.txt
-	-find -name __pycache__ -type d -exec rm -rf '{}' ';' 2>/dev/null
+	find -name __pycache__ -type d -exec rm -rf '{}' ';' 2>/dev/null || true
 
 image: requirements.txt
 	docker build -t $(IMAGE) .
@@ -39,9 +39,9 @@ imagerun: requirements.txt
 install-dry:
 	helm install --dry-run --debug $(HELM_OPTS) --namespace=$(NAMESPACE) $(NAME) ./taggedlistbrowser-helm
 
-install: uninstall image
+install: image
 	helm lint ./taggedlistbrowser-helm
-	helm install $(HELM_OPTS) --namespace=$(NAMESPACE) $(NAME) ./taggedlistbrowser-helm
+	helm upgrade --install $(HELM_OPTS) --namespace=$(NAMESPACE) $(NAME) ./taggedlistbrowser-helm
 
 wait:
 	sleep 15
