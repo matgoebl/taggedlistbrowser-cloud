@@ -72,8 +72,10 @@ class AnnotatedResults:
         new_items = {}
         for expr in exprs:
             if expr.startswith( '/'):
+                if expr[-1] == '/':  # strip optional trailing slash (convention for regex)
+                    expr = expr[:-1]
                 logging.debug(f"Searching regex '{expr}'")
-                regex = re.compile(expr[1:])
+                regex = re.compile(expr[1:], re.IGNORECASE)
                 new_items.update( { k:v for k,v in self.items.items() if regex.match(k) } )
             else:
                 logging.debug(f"Searching string {expr}")
@@ -85,9 +87,13 @@ class AnnotatedResults:
         for filter in filters:
             logging.debug(f"Filtering for '{filter}'")
             keep_items = []
-            inputspec = None
+            inputspec = None  # list(self.taggedlists.lists.keys())[0]
             if filter.find(':') >= 0:
                 (inputspec, filter) = filter.split(':',2)
+            if not self.taggedlists.lists.get(inputspec):
+                logging.info(f"Filtering for '{filter}: input '{inputspec}' does not exist.'")
+                self.items = {}
+                return
             if filter.find('=') >= 0:
                 (tag, tagvalue) = filter.split('=',2)
                 if self.is_annotated:

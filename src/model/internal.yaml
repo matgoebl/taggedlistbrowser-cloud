@@ -3,6 +3,7 @@ Test.example.de:
 
 dev.example.de:
   user: joe
+  color: blue
 
 monitor.example.de:
   service: MONITOR
