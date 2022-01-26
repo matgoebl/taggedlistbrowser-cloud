@@ -57,8 +57,11 @@ ingress:
   #      - chart-example.local
 
 ingresspath:
-  enabled: true
+#  type: ""
+  type: "traefik"
+#  type: "nginx"
 #  path: /taggedlistbrowser/
+#  dnsname: "www.example.com"
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

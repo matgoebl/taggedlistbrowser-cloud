@@ -1,4 +1,4 @@
-{{- if .Values.ingresspath.enabled -}}
+{{- if eq .Values.ingresspath.type "traefik" -}}
 {{- $fullName := include "taggedlistbrowser.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
 {{- $ingressPath :=  $fullName  -}}
@@ -31,6 +31,9 @@ spec:
             name: {{ $fullName }}
             port:
               number: {{ $svcPort }}
+{{- if .Values.ingresspath.dnsname }}
+    host: {{ .Values.ingresspath.dnsname }}
+{{- end }}
 ---
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
