@@ -100,12 +100,16 @@ $('[name="q"]').focus();
   {% for item in resultkeys %}
    {% if request.args.t == '.' or request.args.t == '' or request.args.t is not defined %}
     {% if request.args.i != request.args.i |trim('_') %}
-     <li><a href="{{ url_for('doc', doc=request.args.i, id=item) }}">{{ item }}</a></li> 
+     <li><a href="{{ url_for('doc', doc=request.args.i, id=results[item][request.args.i].keys()|first) }}">{{ results[item][request.args.i].keys() | first}}</a></li> 
     {% else %}
      <li><a href="{{ url_for('detail', id=item) }}">{{ item }}</a></li> 
     {% endif %}
    {% else %}
-    <li><a href="{{ url_for('index', o='table', f= inputspec + request.args.t + '=' + item|urlencode ) }}">{{ item }}</a></li> 
+    {% if request.args.i != request.args.i |trim('_') %}
+     <li><a href="{{ url_for('doc', doc=request.args.i, id=results[item][request.args.i].keys()|first) }}">{{ results[item][request.args.i].keys() | first}}: {{ item }}</a></li> 
+    {% else %}
+     <li><a href="{{ url_for('index', o='table', f= inputspec + request.args.t + '=' + item|urlencode ) }}">{{ item }}</a></li>
+    {% endif %}
    {% endif %}
   {% else %}
    No results.

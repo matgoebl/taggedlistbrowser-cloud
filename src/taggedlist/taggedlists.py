@@ -40,7 +40,6 @@ class TaggedLists:
                 continue
             elif label.startswith('_'):
                 for filename, doc in list.items():
-                    print(filename, doc)
                     for key in [match.value for match in jsonpath_ng.parse(docspec).find(doc)]:
                         keys[key.lower()] = key
             else:

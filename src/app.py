@@ -25,7 +25,7 @@ verbose = int(os.environ.get('VERBOSE','1'))
 port = int(os.environ.get('PORT','5000'))
 datadir = os.environ.get('DATADIR','data')
 files = os.environ.get('FILES','model/hostlist.yaml,model/internal.yaml,model/external.yaml,model/./_docs/./*/*.json').split(',')
-tagspec = os.environ.get('TAGS','.,service,user,color,info')
+tagspec = os.environ.get('TAGS','.,service,user,color,info,type')
 docspec = os.environ.get('DOCSPEC','hosts[*]')
 preannotated_model = os.environ.get('PREANNOTATION','0') == "1"
 apptitle = os.environ.get('APPTITLE','Tagged List Browser')
@@ -85,7 +85,7 @@ def index():
                 annotatedresult.search(request.args.get('q').split())
             if request.args.get('f'):
                 annotatedresult.filter(request.args.get('f').split(), tagspecs, docspec)
-            if ( request.args.get('o') == "table" or request.args.get('o') == "yaml" ) and not preannotation_usable:
+            if ( request.args.get('o') == "table" or request.args.get('o') == "yaml" or (request.args.get('i') and request.args.get('i').startswith('_')) ) and not preannotation_usable:
                 annotatedresult.annotate(tagspecs)
             results = annotatedresult.results()
             resultkeys = annotatedresult.keys()
