@@ -3,6 +3,7 @@ import yaml
 import re
 import jsonpath_ng
 import fnmatch
+import urllib
 
 from taggedlist.helper import find_tags, has_obj_value
 
@@ -96,6 +97,7 @@ class AnnotatedResults:
                 return
             if filter.find('=') >= 0:
                 (tag, tagvalue) = filter.split('=',2)
+                tagvalue = urllib.parse.unquote(tagvalue)
                 if self.is_annotated:
                     for item, annotation in self.items.items():
                         if annotation.get(inputspec) and annotation[inputspec].get(tag) and tagvalue in annotation[inputspec][tag]:

@@ -71,7 +71,7 @@ $('[name="q"]').focus();
  <h2>Results for {{ request.args.q | e }} {{ request.args.f | e }}</h2>
  {% if request.args.o == "table" and ( request.args.t == '.' or request.args.t == '' or request.args.t is not defined ) %}
   <table class="results">
-    <tr><th colspan=2>{{labels[1]}}</th><th colspan=4>{{labels[2]}}</th><th colspan=2>{{labels[3]}}</th><th>{{labels[4]}}</th></tr>
+    <tr><th colspan=2>{{labels[1]}}</th><th colspan=4>{{labels[2]}}</th><th colspan=2>{{labels[3]}}</th><th>{{labels[4]|trim('_')}}</th></tr>
     <tr><th>key</th><th>{{tags[4]}}</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th><th>{{tags[3]}}</th><th>{{tags[4]}}</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th><th></th></tr>
   {% for id, item in results.items() %}
     <tr>
@@ -101,7 +101,7 @@ $('[name="q"]').focus();
    {% if request.args.t == '.' or request.args.t == '' or request.args.t is not defined %}
     <li><a href="{{ url_for('detail', id=item) }}">{{ item }}</a></li> 
    {% else %}
-    <li><a href="{{ url_for('index', o='table', f= inputspec + request.args.t + '=' + item) }}">{{ item }}</a></li> 
+    <li><a href="{{ url_for('index', o='table', f= inputspec + request.args.t + '=' + item|urlencode ) }}">{{ item }}</a></li> 
    {% endif %}
   {% else %}
    No results.
