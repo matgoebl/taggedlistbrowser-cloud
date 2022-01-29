@@ -60,7 +60,7 @@ if auth_user and auth_pass:
 
 if preannotated_model:
     logging.debug(f"Prepare full annotated model...")
-    result = model.query_valueset()
+    result = model.query_valueset(None, None, docspec)
     annotatedresult_main = AnnotatedResults(model, result)
     annotatedresult_main.preannotate(tagspecs, docspec)
 
@@ -79,7 +79,7 @@ def index():
             if preannotation_usable:
                 annotatedresult = copy.deepcopy(annotatedresult_main)
             else:
-                result = model.query_valueset(request.args.get('t'), request.args.get('i'))
+                result = model.query_valueset(request.args.get('t'), request.args.get('i'), docspec)
                 annotatedresult = AnnotatedResults(model,result)
             if request.args.get('q'):
                 annotatedresult.search(request.args.get('q').split())
@@ -111,7 +111,7 @@ def detail(id):
             annotatedresult = copy.deepcopy(annotatedresult_main)
             annotatedresult.search([id])
         else:
-            result = model.query_valueset()
+            result = model.query_valueset(None, None, docspec)
             annotatedresult = AnnotatedResults(model,result)
             annotatedresult.search([id])
             annotatedresult.annotate(tagspecs)

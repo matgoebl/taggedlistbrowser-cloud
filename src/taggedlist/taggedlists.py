@@ -1,6 +1,7 @@
 import logging
 import yaml
 import re
+import jsonpath_ng
 
 from taggedlist import loader
 from taggedlist.helper import find_tags
@@ -30,15 +31,20 @@ class TaggedLists:
         else:
             return {listname: self.lists[listname]}
 
-    def keys(self,listname):
+    def keys(self, listname, docspec = ""):
         keys = {}
         lists = self.get_lists(listname)
         for label, list in lists.items():
-            logging.debug(f"Keys in list {label}")
-            if listname == "*" and label.startswith('_'):
+            logging.debug(f"Keys in list {label}{listname}")
+            if listname == "*" and label.startswith('_') and False:
                 continue
-            for key,value in list.items():
-                if key.lower() not in keys:
+            elif label.startswith('_'):
+                for filename, doc in list.items():
+                    print(filename, doc)
+                    for key in [match.value for match in jsonpath_ng.parse(docspec).find(doc)]:
+                        keys[key.lower()] = key
+            else:
+                for key,value in list.items():
                     keys[key.lower()] = key
         keys_with_capitalization = [ v for k,v in keys.items() ]
         keys_with_capitalization.sort()
@@ -51,11 +57,11 @@ class TaggedLists:
         tags.sort()
         return tags
 
-    def query_valueset(self, tag = '.', inputspec = None):
+    def query_valueset(self, tag = '.', inputspec = None, docspec = ""):
         if inputspec == None or inputspec == "":
             inputspec = "*"
         if tag == '.' or tag == '' or tag == None:
-            return self.keys(inputspec)
+            return self.keys(inputspec, docspec)
         else:
             return self.tags(tag, inputspec)
 
