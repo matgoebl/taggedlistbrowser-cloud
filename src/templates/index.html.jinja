@@ -99,7 +99,11 @@ $('[name="q"]').focus();
   <ul>
   {% for item in resultkeys %}
    {% if request.args.t == '.' or request.args.t == '' or request.args.t is not defined %}
-    <li><a href="{{ url_for('detail', id=item) }}">{{ item }}</a></li> 
+    {% if request.args.i != request.args.i |trim('_') %}
+     <li><a href="{{ url_for('doc', doc=request.args.i, id=item) }}">{{ item }}</a></li> 
+    {% else %}
+     <li><a href="{{ url_for('detail', id=item) }}">{{ item }}</a></li> 
+    {% endif %}
    {% else %}
     <li><a href="{{ url_for('index', o='table', f= inputspec + request.args.t + '=' + item|urlencode ) }}">{{ item }}</a></li> 
    {% endif %}
