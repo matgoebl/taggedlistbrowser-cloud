@@ -59,6 +59,31 @@ $('form').keydown(function(event) {
  }
 })
 $('[name="q"]').focus();
+
+function copytoclipboard() {
+ text="";
+ $(".key").each(function() {
+  text += $(this).text() + "\n";
+ });
+ navigator.clipboard.writeText(text).then(function() {
+   $("#status").text("Successfully copied to clipboard.");
+   statusClearTimeout();
+ }, function() {
+   $("#status").text("Failed writing to clipboard!");
+   statusClearTimeout();
+ });
+ return false;
+}
+
+function statusClearTimeout() {
+ setTimeout (
+  function () {
+   $("#status").text("");
+  },
+  3000
+ );
+}
+
 </script>
 
 {% if request.args.q or request.args.f %}
@@ -75,7 +100,7 @@ $('[name="q"]').focus();
     <tr><th>key</th><th>{{tags[4]}}</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th><th>{{tags[3]}}</th><th>{{tags[4]}}</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th><th></th></tr>
   {% for id, item in results.items() %}
     <tr>
-     <td><a href="{{ url_for('detail', id=id) }}">{{ id }}</a></td>
+     <td><a href="{{ url_for('detail', id=id) }}" class=key>{{ id }}</a></td>
      <td>{% if item[labels[1]] is defined %}{{item[labels[1]].info|join(' ')}}{% endif %}</td>
      <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[1]] is defined %}{% for i in item[labels[2]][tags[1]] %}<a href="{{ url_for('index', o='table', f=currfilter + labels[2] + ':' + tags[1] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
      <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[2]] is defined %}{% for i in item[labels[2]][tags[2]] %}<a href="{{ url_for('index', o='table', f=currfilter + labels[2] + ':' + tags[2] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
@@ -86,7 +111,11 @@ $('[name="q"]').focus();
      <td>{% if item[labels[4]] is defined %}{% for i in item[labels[4]] %}<a href="{{ url_for('doc', doc=labels[4], id=i ) }}">{{i.split('/')[0]}}</a> &nbsp; {% endfor %}{% endif %}</td>
    </tr>
   {% endfor %}
-  <tr><td colspan=8>{{results|length}} results.</td>
+  <tr><td colspan=8>
+       {{results|length}} results.
+       <input type="button" value="copy to clipboard" onclick="copytoclipboard()">
+       <span id=status></span>
+      </td>
      <td>{% if alldocs is defined %}{% for i in alldocs %}<a href="{{ url_for('doc', doc=labels[4], id=i ) }}">{{i.split('/')[0]}}</a> &nbsp; {% endfor %}{% endif %}
      <a href="mailto:{{allemails}}">@</a>
      </td>
