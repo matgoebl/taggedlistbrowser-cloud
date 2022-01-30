@@ -1,6 +1,7 @@
 {
  "info": "some text abc...",
  "type": "internal",
+ "emails": [ "internal@example.de" ],
  "hosts": [
   "test.example.de",
   "dev.example.de",

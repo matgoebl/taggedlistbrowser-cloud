@@ -17,6 +17,7 @@ from jinja2 import Environment, select_autoescape
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from taggedlist import TaggedLists, AnnotatedResults
+from taggedlist.helper import array_flatten_sort_uniq
 
 has_dotenv = True if os.environ.get('DOTENV') != None else False
 dotenv.load_dotenv(os.environ.get('DOTENV','.env'), verbose = has_dotenv, override = has_dotenv)
@@ -27,6 +28,7 @@ datadir = os.environ.get('DATADIR','data')
 files = os.environ.get('FILES','model/hostlist.yaml,model/internal.yaml,model/external.yaml,model/./_docs/./*/*.json').split(',')
 tagspec = os.environ.get('TAGS','.,service,user,color,info,type')
 docspec = os.environ.get('DOCSPEC','hosts[*]')
+mailspec = os.environ.get('MAILSPEC','emails,testemail')
 preannotated_model = os.environ.get('PREANNOTATION','0') == "1"
 apptitle = os.environ.get('APPTITLE','Tagged List Browser')
 auth_user = os.environ.get('BASIC_AUTH_USERNAME')
@@ -98,8 +100,16 @@ def index():
         response.mimetype = "text/plain"
         return response
 
-    return render_template('index.html.jinja', results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags, apptitle=apptitle )
+    doclabel = [ label for label in model.labels() if label.startswith('_') ][0]  # only first doc
+    alldocs = [ list(v.get(doclabel).keys()) for k,v in results.items() if v.get(doclabel)  ]
+    alldocs = array_flatten_sort_uniq(alldocs)
 
+    allemails = []
+    for tag in mailspec.split(','):
+        allemails.extend( [ v.get(tag) for k,v in model.list(doclabel).items() if tag in v and k in alldocs ] )
+    allemails = ",".join(array_flatten_sort_uniq(allemails))
+
+    return render_template('index.html.jinja', results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags, apptitle=apptitle, alldocs=alldocs, allemails=allemails )
 
 @app.route('/id/<string:id>')
 def detail(id):

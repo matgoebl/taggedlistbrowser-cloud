@@ -86,7 +86,11 @@ $('[name="q"]').focus();
      <td>{% if item[labels[4]] is defined %}{% for i in item[labels[4]] %}<a href="{{ url_for('doc', doc=labels[4], id=i ) }}">{{i.split('/')[0]}}</a> &nbsp; {% endfor %}{% endif %}</td>
    </tr>
   {% endfor %}
-  <tr><td colspan=9>{{results|length}} results.</td></tr>
+  <tr><td colspan=8>{{results|length}} results.</td>
+     <td>{% if alldocs is defined %}{% for i in alldocs %}<a href="{{ url_for('doc', doc=labels[4], id=i ) }}">{{i.split('/')[0]}}</a> &nbsp; {% endfor %}{% endif %}
+     <a href="mailto:{{allemails}}">@</a>
+     </td>
+  </tr>
   </table>
 
  {% else %}

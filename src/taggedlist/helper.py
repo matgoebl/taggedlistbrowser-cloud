@@ -46,3 +46,14 @@ def has_obj_value(value, maxdepth, obj, key = None):
     else:
         logger.debug(f"{indent} mo match for {key}={obj}")
     return False
+
+def array_flatten_sort_uniq(arr):
+    lst = []
+    for i in arr:
+        if isinstance(i,list):
+            lst.extend( array_flatten_sort_uniq(i) )
+        else:
+            lst.append( i )
+    lst = list(set(lst))
+    lst.sort()
+    return lst

@@ -1,6 +1,8 @@
 {
  "info": "some text 123...",
  "type": "test",
+ "emails": [ "external1@example.de", "external2@example.de" ],
+ "testemail": "test@example.de",
  "hosts": [
   "test.example.de",
   "dev.example.de"
