@@ -10,6 +10,8 @@ import yaml
 import glob
 import copy
 import datetime
+import jsonpath_ng
+import urllib.parse
 from string import Template
 from flask import Flask, request, render_template, make_response, g
 from flask_basicauth import BasicAuth
@@ -29,6 +31,8 @@ files = os.environ.get('FILES','model/hostlist.yaml,model/internal.yaml,model/ex
 tagspec = os.environ.get('TAGS','.,service,user,color,info,type')
 docspec = os.environ.get('DOCSPEC','hosts[*]')
 mailspec = os.environ.get('MAILSPEC','emails,testemail')
+mailsubject = os.environ.get('MAILSUBJECT','Hello from administration')
+mailbody = os.environ.get('MAILBODY',"The hosts\n{items}\n\nfrom documents\n{docs}\n\nare affected.")
 preannotated_model = os.environ.get('PREANNOTATION','0') == "1"
 apptitle = os.environ.get('APPTITLE','Tagged List Browser')
 auth_user = os.environ.get('BASIC_AUTH_USERNAME')
@@ -104,12 +108,18 @@ def index():
     alldocs = [ list(v.get(doclabel).keys()) for k,v in results.items() if v.get(doclabel)  ]
     alldocs = array_flatten_sort_uniq(alldocs)
 
-    allemails = []
+    mailaddrs = []
     for tag in mailspec.split(','):
-        allemails.extend( [ v.get(tag) for k,v in model.list(doclabel).items() if tag in v and k in alldocs ] )
-    allemails = ",".join(array_flatten_sort_uniq(allemails))
+        jsonpath_expr = jsonpath_ng.parse(tag)
+        for doc in [ v for k,v in model.list(doclabel).items() if k in alldocs ]:
+            matches = [match.value for match in jsonpath_expr.find(doc)]
+            mailaddrs.extend( matches )
+    mailaddrs = ";".join(array_flatten_sort_uniq(mailaddrs))
 
-    return render_template('index.html.jinja', results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags, apptitle=apptitle, alldocs=alldocs, allemails=allemails )
+    mailbody_filled = mailbody.format( items=chr(10).join([k for k,v in results.items()]), docs=chr(10).join(alldocs) )
+    mailto = mailaddrs + "?subject=" + urllib.parse.quote(mailsubject,safe='') + "&body=" + urllib.parse.quote(mailbody_filled,safe='')
+
+    return render_template('index.html.jinja', results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags, apptitle=apptitle, alldocs=alldocs, mailto=mailto )
 
 @app.route('/id/<string:id>')
 def detail(id):
