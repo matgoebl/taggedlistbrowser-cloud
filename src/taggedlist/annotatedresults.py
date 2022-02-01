@@ -34,7 +34,7 @@ class AnnotatedResults:
                             self.add_item(item,label,filename)
         self.is_annotated = True
 
-    def preannotate(self, tagspecs = {}, docspec = ""):
+    def preannotate(self, tagspecs = {}, docspec = "", docextract = ""):
         for item in self.items:
             self.add_item(item)
 
@@ -52,6 +52,11 @@ class AnnotatedResults:
                 for filename, doc in list.items():
                     for item in [match.value for match in jsonpath_ng.parse(docspec).find(doc)]:
                         self.add_item(item,label,filename)
+                    (tag, extractpaths) = docextract.split(':',2)  # TODO: docextract only available for preannotated mode
+                    extract = []
+                    for extractpath in extractpaths.split(','):
+                        extract.append( ", ".join([match.value for match in jsonpath_ng.parse(extractpath).find(doc)]) )
+                    self.taggedlists.lists[label][filename][tag] = "; ".join(extract)
         self.is_annotated = True
 
     def add_item(self, item, label = None, tag = None, data = None ):
