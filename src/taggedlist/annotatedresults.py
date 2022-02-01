@@ -80,7 +80,7 @@ class AnnotatedResults:
                 new_items.update( { k:v for k,v in self.items.items() if regex.match(k) } )
             else:
                 logging.debug(f"Searching string {expr}")
-                new_items.update( { k:v for k,v in self.items.items() if fnmatch.fnmatch(k,expr) } )
+                new_items.update( { k:v for k,v in self.items.items() if fnmatch.fnmatch(k.lower(),expr.lower()) } )
         self.items = new_items
 
     def filter(self, filters, tagspecs = {}, docspec = ""):
