@@ -55,7 +55,12 @@ class AnnotatedResults:
                     (tag, extractpaths) = docextract.split(':',2)  # TODO: docextract only available for preannotated mode
                     extract = []
                     for extractpath in extractpaths.split(','):
-                        extract.append( ", ".join([match.value for match in jsonpath_ng.parse(extractpath).find(doc)]) )
+                        extractresults = [match.value for match in jsonpath_ng.parse(extractpath).find(doc)]
+                        if extractresults and extractresults[0]:
+                            try:
+                                extract.append( ", ".join(extractresults) )
+                            except:
+                                extract.append( str(extractresults) )
                     self.taggedlists.lists[label][filename][tag] = "; ".join(extract)
         self.is_annotated = True
 
