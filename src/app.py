@@ -115,12 +115,12 @@ def index():
         for doc in [ v for k,v in model.list(doclabel).items() if k in alldocs ]:
             matches = [match.value for match in jsonpath_expr.find(doc)]
             mailaddrs.extend( matches )
-    mailaddrs = ";".join(array_flatten_sort_uniq(mailaddrs))
+    mailaddrs = urllib.parse.quote(";".join(array_flatten_sort_uniq(mailaddrs)))
 
     mailbody_filled = mailbody.format( items=chr(10).join([k for k,v in results.items()]), docs=chr(10).join(alldocs) )
     mailto = mailaddrs + "?subject=" + urllib.parse.quote(mailsubject,safe='') + "&body=" + urllib.parse.quote(mailbody_filled,safe='')
 
-    return render_template('index.html.jinja', results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags, apptitle=apptitle, alldocs=alldocs, mailto=mailto )
+    return render_template('index.html.jinja', results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags, apptitle=apptitle, alldocs=alldocs, mailto=mailto, mailaddrs=mailaddrs )
 
 @app.route('/id/<string:id>')
 def detail(id):

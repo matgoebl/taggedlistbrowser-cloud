@@ -110,7 +110,7 @@ class AnnotatedResults:
                 tagvalue = urllib.parse.unquote(tagvalue)
                 if self.is_annotated:
                     for item, annotation in self.items.items():
-                        if annotation.get(inputspec) and annotation[inputspec].get(tag) and tagvalue in annotation[inputspec][tag]:
+                        if annotation.get(inputspec) and annotation[inputspec].get(tag) and len([ True for i in annotation[inputspec][tag] if fnmatch.fnmatch(i.lower(),tagvalue.lower()) ]) > 0:
                             logging.debug(f"Filter found {tagvalue} in {input}:{tag}")
                             keep_items.append(item)
                 else:
@@ -118,7 +118,7 @@ class AnnotatedResults:
                     logging.debug(f"Filtering for {inputspec}:{tagspecs[tag]}({tag}) == {tagvalue}")
                     for item, tags in self.taggedlists.lists[inputspec].items():
                         matches = [match.value for match in jsonpath_expr.find(tags)]
-                        if tagvalue in matches:
+                        if len([ True for i in matches if fnmatch.fnmatch(i.lower(),tagvalue.lower()) ]) > 0:
                             logging.debug(f"Filter found {tagvalue} in {inputspec}:{tag}")
                             keep_items.append(item)
             else:

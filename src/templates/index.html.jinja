@@ -117,7 +117,8 @@ function statusClearTimeout() {
        <span id=status></span>
       </td>
      <td>{% if alldocs is defined %}{% for i in alldocs %}<a href="{{ url_for('doc', doc=labels[4], id=i ) }}">{{i.split('/')[0]}}</a> &nbsp; {% endfor %}{% endif %}
-     <a href="mailto:{{mailto}}">@</a>
+     <a href="mailto:{{mailaddrs}}">@</a>
+     <a href="mailto:{{mailto}}">@!</a>
      </td>
   </tr>
   </table>
