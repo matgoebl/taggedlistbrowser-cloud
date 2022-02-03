@@ -31,6 +31,7 @@ files = os.environ.get('FILES','model/hostlist.yaml,model/internal.yaml,model/ex
 tagspec = os.environ.get('TAGS','.,service,user,color,info,summary,type')
 docspec = os.environ.get('DOCSPEC','hosts[*]')
 docextract = os.environ.get('DOCEXTRACT','summary:info,emails[*]')
+docurl = os.environ.get('DOCURL',None)
 mailspec = os.environ.get('MAILSPEC','emails,testemail')
 mailsubject = os.environ.get('MAILSUBJECT','Hello from administration')
 mailbody = os.environ.get('MAILBODY',"The hosts\n{items}\n\nfrom documents\n{docs}\n\nare affected.")
@@ -113,14 +114,14 @@ def index():
     for tag in mailspec.split(','):
         jsonpath_expr = jsonpath_ng.parse(tag)
         for doc in [ v for k,v in model.list(doclabel).items() if k in alldocs ]:
-            matches = [match.value for match in jsonpath_expr.find(doc)]
+            matches = [match.value for match in jsonpath_expr.find(doc) if match.value != None]
             mailaddrs.extend( matches )
     mailaddrs = urllib.parse.quote(";".join(array_flatten_sort_uniq(mailaddrs)))
 
     mailbody_filled = mailbody.format( items=chr(10).join([k for k,v in results.items()]), docs=chr(10).join(alldocs) )
     mailto = mailaddrs + "?subject=" + urllib.parse.quote(mailsubject,safe='') + "&body=" + urllib.parse.quote(mailbody_filled,safe='')
 
-    return render_template('index.html.jinja', results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags, apptitle=apptitle, alldocs=alldocs, mailto=mailto, mailaddrs=mailaddrs )
+    return render_template('index.html.jinja', results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags, apptitle=apptitle, alldocs=alldocs, mailto=mailto, mailaddrs=mailaddrs, docurl=docurl )
 
 @app.route('/id/<string:id>')
 def detail(id):

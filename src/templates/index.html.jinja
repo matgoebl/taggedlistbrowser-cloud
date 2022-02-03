@@ -97,7 +97,7 @@ function statusClearTimeout() {
  {% if request.args.o == "table" and ( request.args.t == '.' or request.args.t == '' or request.args.t is not defined ) %}
   <table class="results">
     <tr><th colspan=2>{{labels[1]}}</th><th colspan=4>{{labels[2]}}</th><th colspan=2>{{labels[3]}}</th><th>{{labels[4]|trim('_')}}</th></tr>
-    <tr><th>key</th><th>{{tags[4]}}</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th><th>{{tags[3]}}</th><th>{{tags[4]}}</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th><th></th></tr>
+    <tr><th>key</th><th>info</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th><th>{{tags[3]}}</th><th>{{tags[4]}}</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th><th></th></tr>
   {% for id, item in results.items() %}
     <tr>
      <td><a href="{{ url_for('detail', id=id) }}" class=key>{{ id }}</a></td>
@@ -116,7 +116,9 @@ function statusClearTimeout() {
        <input type="button" value="copy to clipboard" onclick="copytoclipboard()">
        <span id=status></span>
       </td>
-     <td>{% if alldocs is defined %}{% for i in alldocs %}<a href="{{ url_for('doc', doc=labels[4], id=i ) }}">{{i.split('/')[0]}}</a> &nbsp; {% endfor %}{% endif %}
+     <td>{% if alldocs is defined %}{% for i in alldocs %}<a
+         href="{% if docurl != None %}{{ docurl }}{{ i }}.json{% else %}{{ url_for('doc', doc=labels[4], id=i ) }}{% endif %}"
+         >{{i.split('/')[0]}}</a> &nbsp; {% endfor %}{% endif %}
      <a href="mailto:{{mailaddrs}}">@</a>
      <a href="mailto:{{mailto}}">@!</a>
      </td>
