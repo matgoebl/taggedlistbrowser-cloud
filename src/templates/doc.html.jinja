@@ -3,12 +3,28 @@
 
 {% block content %}
 
+<script src="{{ url_for('static', filename='jquery.json-viewer.js') }}"></script>
+<link  href="{{ url_for('static', filename='jquery.json-viewer.css') }}" type="text/css" rel="stylesheet">
+{% if docscript %}
+<script src="{{ url_for('static', filename=docscript) }}"></script>
+{% endif %}
+
+
 <h2>Document '{{ id }}'</h2>
 
 <a href="{{ url_for('index', o='table', f=doc + ':' + id ) }}">&gt; Filter for referenced keys</a>
 
-<pre>
-{{ doc_json }}
+<pre id="json-renderer">
 </pre>
+
+<script>
+var data = {{ doc_json | safe }};
+
+if (typeof(custom_doc_processor) == 'function') {
+ data = custom_doc_processor(data);
+}
+
+$('#json-renderer').jsonViewer(data, {collapsed: false, rootCollapsable: false, withQuotes: false, withLinks: true});
+</script>
 
 {% endblock content %}

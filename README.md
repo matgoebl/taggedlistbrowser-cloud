@@ -5,6 +5,8 @@ e-mail: matthias dot goebl at goebl dot net
 
 This is my flask-on-kubernetes evaluation.
 
+Published under the Apache License 2.0.
+
 
 Installation
 ------------
@@ -34,3 +36,11 @@ The list items can be tagged, in this example with 'service' and 'user'.
 
 The data set can be queried via a simple user interface provided via flask.
 Alternatively the command line version taggedlistquery.sh can be used.
+
+
+Integrated Ressources
+---------------------
+
+This project contains
+- [jQuery](https://jquery.com/) under MIT license.
+- [jQuery json-viewer](https://github.com/abodelot/jquery.json-viewer) under MIT License, patched to display mailto: links.

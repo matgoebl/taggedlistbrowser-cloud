@@ -32,6 +32,7 @@ tagspec = os.environ.get('TAGS','.,service,user,color,info,summary,type')
 docspec = os.environ.get('DOCSPEC','hosts[*]')
 docextract = os.environ.get('DOCEXTRACT','summary:info,emails[*]')
 docurl = os.environ.get('DOCURL',None)
+docscript = os.environ.get('DOCSCRIPT','example.js')
 mailspec = os.environ.get('MAILSPEC','emails,testemail')
 mailsubject = os.environ.get('MAILSUBJECT','Hello from administration')
 mailbody = os.environ.get('MAILBODY',"The hosts\n{items}\n\nfrom documents\n{docs}\n\nare affected.")
@@ -164,7 +165,7 @@ def doc(doc,id):
     except Exception as e:
         errormsg = repr(e)
 
-    return render_template('doc.html.jinja', doc_json=doc_json, errormsg=errormsg, id=id, doc=doc, apptitle=apptitle )
+    return render_template('doc.html.jinja', doc_json=doc_json, errormsg=errormsg, id=id, doc=doc, apptitle=apptitle, docscript=docscript )
 
 
 @app.before_request
