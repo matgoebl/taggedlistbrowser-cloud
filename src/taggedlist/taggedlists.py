@@ -41,10 +41,12 @@ class TaggedLists:
             elif label.startswith('_'):
                 for filename, doc in list.items():
                     for key in [match.value for match in jsonpath_ng.parse(docspec).find(doc)]:
-                        keys[key.lower()] = key
+                        if not key.lower() in keys:
+                            keys[key.lower()] = key
             else:
                 for key,value in list.items():
-                    keys[key.lower()] = key
+                    if not key.lower() in keys:
+                        keys[key.lower()] = key
         keys_with_capitalization = [ v for k,v in keys.items() ]
         keys_with_capitalization.sort()
         return keys_with_capitalization

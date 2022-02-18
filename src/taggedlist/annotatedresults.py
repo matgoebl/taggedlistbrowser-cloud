@@ -35,10 +35,12 @@ class AnnotatedResults:
         self.is_annotated = True
 
     def preannotate(self, tagspecs = {}, docspec = "", docextract = ""):
+        logging.info(f"Running preannotation ...")
         for item in self.items:
             self.add_item(item)
 
         for label, list in self.taggedlists.lists.items():
+            logging.info(f"Preannotating {label} ...")
             if not label.startswith('_'):
                 for item in list:
                     self.add_item(item, label, 'data', list[item])
@@ -50,6 +52,7 @@ class AnnotatedResults:
                         self.add_item(item, label, tag, matches)
             else:
                 for filename, doc in list.items():
+                    logging.info(f"Preannotating {label}:{filename} ...")
                     for item in [match.value for match in jsonpath_ng.parse(docspec).find(doc)]:
                         self.add_item(item,label,filename)
                     (tag, extractpaths) = docextract.split(':',2)  # TODO: docextract only available for preannotated mode
