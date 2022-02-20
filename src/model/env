@@ -2,3 +2,4 @@ FILES="model/hostlist.yaml,model/internal.yaml,model/external.yaml,model/./_docs
 TAGS=".,service,user"
 DOCSPEC="hosts[*]"
 PREANNOTATION="1"
+DOCEXTRACT="summary:info,emails[*]"

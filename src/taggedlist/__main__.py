@@ -23,7 +23,8 @@ def main():
     parser.add_argument('-P', '--preannotation', action='store_true', default=(os.environ.get('PREANNOTATION','0') == "1"), help='Run initial preannotation.' )
     parser.add_argument('-T', '--tagspec', default=os.environ.get('TAGS'),    help='Use TagSpec.' )
     parser.add_argument('-D', '--docspec', default=os.environ.get('DOCSPEC'), help='Use DocSpec.' )
-    parser.add_argument('-W', '--writeall',   default=None,              help='Write the whole model to a file.')
+    parser.add_argument('-X', '--docextract', default=os.environ.get('DOCEXTRACT'), help='Use DocExtract.' )
+    parser.add_argument('-W', '--writepreannotation',   default=None,    help='Write the preannotated model to a file.')
     parser.add_argument('-v', '--verbose',    action='count', default=int(os.environ.get('VERBOSE','0')), help="Be more verbose, can be repeated (up to 3 times)." )
     args = parser.parse_args()
 
@@ -36,16 +37,17 @@ def main():
     model = TaggedLists()
     model.load_files(args.readfiles.split(','))
 
-    if args.preannotation:
-        result = model.query_valueset()
+    if args.preannotation or args.writepreannotation:
+        result = model.query_valueset(None, None, args.docspec)
         annotatedresult = AnnotatedResults(model, result)
         tagspecs = { t.split("=")[0]: t.split("=")[-1] for t in args.tagspec.split(",")}
-        annotatedresult.preannotate(tagspecs, args.docspec)
-        if args.writeall:
-            print(yaml.dump(annotatedresult.items))
+        annotatedresult.preannotate(tagspecs, args.docspec, args.docextract)
+        if args.writepreannotation:
+            with open(args.writepreannotation, 'w') as outfile:
+                outfile.write(yaml.dump(annotatedresult.items))
             sys.exit(0)
 
-    result = model.query_valueset(args.tag, args.input)
+    result = model.query_valueset(args.tag, args.input, args.docspec)
 
     annotatedresult = AnnotatedResults(model,result)
 
