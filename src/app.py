@@ -12,6 +12,7 @@ import copy
 import datetime
 import jsonpath_ng
 import urllib.parse
+import importlib
 from string import Template
 from flask import Flask, request, render_template, make_response, g
 from flask_basicauth import BasicAuth
@@ -31,6 +32,7 @@ files = os.environ.get('FILES','model/hostlist.yaml,model/internal.yaml,model/ex
 tagspec = os.environ.get('TAGS','.,service,user,color,info,summary,type')
 docspec = os.environ.get('DOCSPEC','hosts[*]')
 docextract = os.environ.get('DOCEXTRACT','summary:info,emails[*]')
+preprocessor = os.environ.get('PREPROCESSOR')
 docurl = os.environ.get('DOCURL',None)
 docscript = os.environ.get('DOCSCRIPT','example.js')
 mailspec = os.environ.get('MAILSPEC','emails,testemail')
@@ -72,6 +74,10 @@ if preannotated_model:
     result = model.query_valueset(None, None, docspec)
     annotatedresult_main = AnnotatedResults(model, result)
     annotatedresult_main.preannotate(tagspecs, docspec, docextract)
+
+if preprocessor:
+    preprocessor_mod = importlib.import_module(preprocessor, package="preprocessor")
+    preprocessor_mod.preprocess(model, annotatedresult_main)
 
 init_duration = datetime.datetime.now() - init_start_time
 logging.info(f"done. Initialization took {init_duration.total_seconds():.3f} seconds.")
