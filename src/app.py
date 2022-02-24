@@ -77,7 +77,7 @@ if preannotated_model:
 
 if preprocessor:
     preprocessor_mod = importlib.import_module(preprocessor, package="preprocessor")
-    preprocessor_mod.preprocess(model, annotatedresult_main)
+    preprocessor_mod.preprocess(model.lists, annotatedresult_main.items)
 
 init_duration = datetime.datetime.now() - init_start_time
 logging.info(f"done. Initialization took {init_duration.total_seconds():.3f} seconds.")

@@ -44,7 +44,7 @@ def main():
         annotatedresult.preannotate(tagspecs, args.docspec, args.docextract)
         if args.writepreannotation:
             with open(args.writepreannotation, 'w') as outfile:
-                outfile.write(yaml.dump(annotatedresult.items))
+                outfile.write(yaml.dump({'lists':model.lists, 'annotatedresult': annotatedresult.items}))
             sys.exit(0)
 
     result = model.query_valueset(args.tag, args.input, args.docspec)
