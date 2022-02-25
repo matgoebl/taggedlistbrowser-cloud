@@ -76,7 +76,7 @@ if preannotated_model:
     annotatedresult_main.preannotate(tagspecs, docspec, docextract)
 
 if preprocessor:
-    preprocessor_mod = importlib.import_module(preprocessor, package="preprocessor")
+    preprocessor_mod = importlib.import_module(preprocessor)
     preprocessor_mod.preprocess(model.lists, annotatedresult_main.items)
 
 init_duration = datetime.datetime.now() - init_start_time

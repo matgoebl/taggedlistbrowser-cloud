@@ -1,10 +1,11 @@
 import logging
 
-def preprocess(model_lists, annotatedresult_items):
+def preprocess(model_lists, annotatedresult_items, testing = False):
     logging.info(f"Preprocessing...")
 
     def add_doc_item(item,type,doc,element):
-        print(f"{item} {type} {doc} + {element}")
+        if testing:
+            logging.debug(f"{item} {type} {doc} + {element}")
         if type not in annotatedresult_items[item]:
             annotatedresult_items[item][type] = {}
         if doc not in annotatedresult_items[item][type]:
