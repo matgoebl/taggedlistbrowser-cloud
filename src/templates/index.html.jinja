@@ -48,6 +48,14 @@
     checked
    {% endif %}
   > YAML
+ </td></tr>
+ <tr><th align=right> Options: </th><td>
+  <input type="checkbox" name="extra" value="true"
+   {% if request.args.extra == "true" %}
+    checked
+   {% endif %}
+  >Extra columns
+ </td></tr>
  <tr><th>                           </th><td> <input type=submit value='Search'> </td></tr>
 </table>
 </form>
@@ -96,8 +104,16 @@ function statusClearTimeout() {
  <h2>Results for {{ request.args.q | e | truncate(80) }} {{ request.args.f | e }}</h2>
  {% if request.args.o == "table" and ( request.args.t == '.' or request.args.t == '' or request.args.t is not defined ) %}
   <table class="results">
-    <tr><th colspan=2>{{labels[1]}}</th><th colspan=4>{{labels[2]}}</th><th colspan=2>{{labels[3]}}</th><th>{{labels[4]|trim('_')}}</th></tr>
-    <tr><th>key</th><th>info</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th><th>{{tags[3]}}</th><th>{{tags[4]}}</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th><th></th></tr>
+    <tr><th colspan=2>{{labels[1]}}</th><th colspan=4>{{labels[2]}}</th><th colspan=2>{{labels[3]}}</th>
+     {% if request.args.extra == "true" %}
+      <th>{{labels[4]|trim('_')}}</th>
+     {% endif %}
+    </tr>
+    <tr><th>key</th><th>info</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th><th>{{tags[3]}}</th><th>{{tags[4]}}</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th>
+     {% if request.args.extra == "true" %}
+      <th>{{labels[4]|trim('_')}}</th>
+     {% endif %}
+    </tr>
   {% for id, item in results.items() %}
     <tr>
      <td><a href="{{ url_for('detail', id=id) }}" class=key>{{ id }}</a></td>
@@ -108,7 +124,9 @@ function statusClearTimeout() {
      <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[4]] is defined %}{% for i in item[labels[2]][tags[4]] %}<a href="{{ url_for('index', o='table', q=request.args.q, f=currfilter + labels[2] + ':' + tags[4] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
      <td>{% if item[labels[3]] is defined %}{% if item[labels[3]][tags[1]] is defined %}{% for i in item[labels[3]][tags[1]] %}<a href="{{ url_for('index', o='table', q=request.args.q, f=currfilter + labels[3] + ':' + tags[1] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
      <td>{% if item[labels[3]] is defined %}{% if item[labels[3]][tags[2]] is defined %}{% for i in item[labels[3]][tags[2]] %}<a href="{{ url_for('index', o='table', q=request.args.q, f=currfilter + labels[3] + ':' + tags[2] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
-     <td>{% if item[labels[4]] is defined %}{% for i in item[labels[4]] %}<a href="{{ url_for('doc', doc=labels[4], id=i ) }}">{{i.split('/')[0]}}</a> {% endfor %}{% endif %}</td>
+     {% if request.args.extra == "true" %}
+      <td>{% if item[labels[4]] is defined %}{% for i in item[labels[4]] %}<a href="{{ url_for('doc', doc=labels[4], id=i ) }}">{{i.split('/')[0]}}</a> {% endfor %}{% endif %}</td>
+     {% endif %}
    </tr>
   {% endfor %}
   <tr><td colspan=8>
@@ -116,12 +134,14 @@ function statusClearTimeout() {
        <input type="button" value="copy to clipboard" onclick="copytoclipboard()">
        <span id=status></span>
       </td>
+     {% if request.args.extra == "true" %}
      <td>{% if alldocs is defined %}{% for i in alldocs %}<a
          href="{% if docurl != None %}{{ docurl }}{{ i }}.json{% else %}{{ url_for('doc', doc=labels[4], id=i ) }}{% endif %}"
          >{{i.split('/')[0]}}</a> {% endfor %}{% endif %}
      <a href="mailto:{{mailaddrs}}">@</a>
      <a href="mailto:{{mailto}}">@!</a>
      </td>
+     {% endif %}
   </tr>
   </table>
 
