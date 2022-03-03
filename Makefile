@@ -23,12 +23,12 @@ $(VENV): requirements.txt
 	python3 -m virtualenv $(VENV) && . $(VENV)/bin/activate && python3 -m pip install -r requirements.txt
 	touch $(VENV)/.stamp
 
-$(VENV)/.stamp: (VENV)
+$(VENV)/.stamp: $(VENV)
 
-run: $(VENV)
+run: $(VENV)/.stamp
 	. $(VENV)/bin/activate && cd src/ && FLASK_ENV=development VERBOSE=2 python3 ./app.py
 
-run-gunicorn: $(VENV)
+run-gunicorn: $(VENV)/.stamp
 	. $(VENV)/bin/activate && cd src && gunicorn --bind 0.0.0.0:8888 --access-logfile - wsgi:app
 
 clean:
@@ -39,12 +39,12 @@ clean:
 distclean: clean
 	rm -rf requirements.txt
 
-image: $(VENV)
+image: $(VENV)/.stamp
 	docker build --build-arg BUILDTAG=$(BUILDTAG) -t $(IMAGE) .
 	docker tag $(IMAGE) $(DOCKER_REGISTRY)/$(IMAGE):$(BUILDTAG)
 	docker push $(DOCKER_REGISTRY)/$(IMAGE):$(BUILDTAG)
 
-imagerun: $(VENV)
+imagerun: $(VENV)/.stamp
 	docker build -t $(IMAGE) .
 	docker run -it $(IMAGE)
 
