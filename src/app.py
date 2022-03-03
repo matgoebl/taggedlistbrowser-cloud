@@ -89,26 +89,27 @@ def index():
     resultkeys = []
     errormsg = None
     try:
-        if 'q' in request.args or 'f' in request.args:
-            preannotation_usable = (request.args.get('t') == "." or request.args.get('t') == None) and (request.args.get('i') == "*" or request.args.get('i') == None) and preannotated_model == True
+        if 'query' in request.args or 'filter' in request.args:
+            preannotation_usable = (request.args.get('tag') == "." or request.args.get('tag') == None) and (request.args.get('list') == "*" or request.args.get('list') == None) and preannotated_model == True
             if preannotation_usable:
                 annotatedresult = copy.deepcopy(annotatedresult_main)
             else:
-                result = model.query_valueset(request.args.get('t'), request.args.get('i'), docspec)
+                result = model.query_valueset(request.args.get('tag'), request.args.get('list'), docspec)
                 annotatedresult = AnnotatedResults(model,result)
-            if request.args.get('q'):
-                annotatedresult.search(request.args.get('q').split())
-            if request.args.get('f'):
-                annotatedresult.filter(request.args.get('f').split(), tagspecs, docspec)
-            if ( request.args.get('o') == "table" or request.args.get('o') == "yaml" or (request.args.get('i') and request.args.get('i').startswith('_')) ) and not preannotation_usable:
+            if request.args.get('query'):
+                annotatedresult.search(request.args.get('query').split())
+            if request.args.get('filter'):
+                annotatedresult.filter(request.args.get('filter').split(), tagspecs, docspec)
+            if ( request.args.get('output') == "table" or request.args.get('output') == "yaml" or (request.args.get('list') and request.args.get('list').startswith('_')) ) and not preannotation_usable:
                 annotatedresult.annotate(tagspecs)
             results = annotatedresult.results()
             resultkeys = annotatedresult.keys()
     except Exception as e:
         errormsg = repr(e)
+        raise(e)
     logging.debug(f"Results: {yaml.dump(results)}")
 
-    if request.args.get('o') == "yaml" and not errormsg:
+    if request.args.get('output') == "yaml" and not errormsg:
         response = make_response(yaml.dump(results), 200)
         response.mimetype = "text/plain"
         return response

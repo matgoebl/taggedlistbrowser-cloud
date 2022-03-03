@@ -7,10 +7,10 @@
 <form method="GET">
 <table>
  <tr><th align=right> Search in:                </th><td>
-  <select name="i">
+  <select name="list">
    {% for label in labels %}
     <option value="{{label}}"
-     {% if (label == request.args.i) %}
+     {% if (label == request.args.list) %}
       selected="selected"
      {% endif %} >
      {{label}}
@@ -19,10 +19,10 @@
   </select>
  </td></tr>
  <tr><th align=right> Tag:                      </th><td>
-  <select name="t">
+  <select name="tag">
    {% for tag in tags %}
     <option value="{{tag}}"
-     {% if (tag == request.args.t) %}
+     {% if (tag == request.args.tag) %}
       selected="selected"
      {% endif %} >
      {{tag}}
@@ -30,21 +30,21 @@
    {% endfor %}
   </select>
  </td></tr>
- <tr><th align=right valign=top> Starting with (or RegEx): </th><td> <textarea name=q rows='5' cols='50'>{{ request.args.q or "*" }}</textarea> <br>(separate multiple search string with whitespace, uses "or" conjunction)</td></tr>
- <tr><th align=right valign=top> Filter(s):                </th><td> <input type=input name=f size='50' value='{{ request.args.f }}'> <br>(separate multiple filters by whitespace, uses "and" conjunction)</td></tr>
+ <tr><th align=right valign=top> Starting with (or RegEx): </th><td> <textarea name=query rows='5' cols='50'>{{ request.args.query or "*" }}</textarea> <br>(separate multiple search string with whitespace, uses "or" conjunction)</td></tr>
+ <tr><th align=right valign=top> Filter(s):                </th><td> <input type=input name=filter size='50' value='{{ request.args.filter }}'> <br>(separate multiple filters by whitespace, uses "and" conjunction)</td></tr>
  <tr><th align=right> Output:                   </th><td> 
-  <input type="radio" name="o" value="list"
-   {% if request.args.o == "list" or request.args.o is not defined %}
+  <input type="radio" name="output" value="list"
+   {% if request.args.output == "list" or request.args.output is not defined %}
     checked
    {% endif %}
   >List
-  <input type="radio" name="o" value="table"
-   {% if request.args.o == "table" %}
+  <input type="radio" name="output" value="table"
+   {% if request.args.output == "table" %}
     checked
    {% endif %}
   > Table
-  <input type="radio" name="o" value="yaml"
-   {% if request.args.o == "yaml" %}
+  <input type="radio" name="output" value="yaml"
+   {% if request.args.output == "yaml" %}
     checked
    {% endif %}
   > YAML
@@ -66,7 +66,7 @@ $('form').keydown(function(event) {
   $(this).trigger('submit');
  }
 })
-$('[name="q"]').focus();
+$('[name="query"]').focus();
 
 function copytoclipboard() {
  text="";
@@ -94,15 +94,15 @@ function statusClearTimeout() {
 
 </script>
 
-{% if request.args.q or request.args.f %}
+{% if request.args.query or request.args.filter %}
 
 {% set currfilter = '' %}
-{% if request.args.f %}
-{%  set currfilter = request.args.f + ' ' %}
+{% if request.args.filter %}
+{%  set currfilter = request.args.filter + ' ' %}
 {% endif %}
 
- <h2>Results for {{ request.args.q | e | truncate(80) }} {{ request.args.f | e }}</h2>
- {% if request.args.o == "table" and ( request.args.t == '.' or request.args.t == '' or request.args.t is not defined ) %}
+ <h2>Results for {{ request.args.query | e | truncate(80) }} {{ request.args.filter | e }}</h2>
+ {% if request.args.output == "table" and ( request.args.tag == '.' or request.args.tag == '' or request.args.tag is not defined ) %}
   <table class="results">
     <tr><th colspan=2>{{labels[1]}}</th><th colspan=4>{{labels[2]}}</th><th colspan=2>{{labels[3]}}</th>
      {% if request.args.extra == "true" %}
@@ -118,12 +118,12 @@ function statusClearTimeout() {
     <tr>
      <td><a href="{{ url_for('detail', id=id) }}" class=key>{{ id }}</a></td>
      <td>{% if item[labels[1]] is defined %}{{item[labels[1]].info|join(' ')}}{% endif %}</td>
-     <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[1]] is defined %}{% for i in item[labels[2]][tags[1]] %}<a href="{{ url_for('index', o='table', q=request.args.q, f=currfilter + labels[2] + ':' + tags[1] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
-     <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[2]] is defined %}{% for i in item[labels[2]][tags[2]] %}<a href="{{ url_for('index', o='table', q=request.args.q, f=currfilter + labels[2] + ':' + tags[2] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
-     <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[3]] is defined %}{% for i in item[labels[2]][tags[3]] %}<a href="{{ url_for('index', o='table', q=request.args.q, f=currfilter + labels[2] + ':' + tags[3] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
-     <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[4]] is defined %}{% for i in item[labels[2]][tags[4]] %}<a href="{{ url_for('index', o='table', q=request.args.q, f=currfilter + labels[2] + ':' + tags[4] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
-     <td>{% if item[labels[3]] is defined %}{% if item[labels[3]][tags[1]] is defined %}{% for i in item[labels[3]][tags[1]] %}<a href="{{ url_for('index', o='table', q=request.args.q, f=currfilter + labels[3] + ':' + tags[1] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
-     <td>{% if item[labels[3]] is defined %}{% if item[labels[3]][tags[2]] is defined %}{% for i in item[labels[3]][tags[2]] %}<a href="{{ url_for('index', o='table', q=request.args.q, f=currfilter + labels[3] + ':' + tags[2] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
+     <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[1]] is defined %}{% for i in item[labels[2]][tags[1]] %}<a href="{{ url_for('index', output='table', query=request.args.query, filter=currfilter + labels[2] + ':' + tags[1] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
+     <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[2]] is defined %}{% for i in item[labels[2]][tags[2]] %}<a href="{{ url_for('index', output='table', query=request.args.query, filter=currfilter + labels[2] + ':' + tags[2] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
+     <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[3]] is defined %}{% for i in item[labels[2]][tags[3]] %}<a href="{{ url_for('index', output='table', query=request.args.query, filter=currfilter + labels[2] + ':' + tags[3] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
+     <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[4]] is defined %}{% for i in item[labels[2]][tags[4]] %}<a href="{{ url_for('index', output='table', query=request.args.query, filter=currfilter + labels[2] + ':' + tags[4] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
+     <td>{% if item[labels[3]] is defined %}{% if item[labels[3]][tags[1]] is defined %}{% for i in item[labels[3]][tags[1]] %}<a href="{{ url_for('index', output='table', query=request.args.query, filter=currfilter + labels[3] + ':' + tags[1] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
+     <td>{% if item[labels[3]] is defined %}{% if item[labels[3]][tags[2]] is defined %}{% for i in item[labels[3]][tags[2]] %}<a href="{{ url_for('index', output='table', query=request.args.query, filter=currfilter + labels[3] + ':' + tags[2] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
      {% if request.args.extra == "true" %}
       <td>{% if item[labels[4]] is defined %}{% for i in item[labels[4]] %}<a href="{{ url_for('doc', doc=labels[4], id=i ) }}">{{i.split('/')[0]}}</a> {% endfor %}{% endif %}</td>
      {% endif %}
@@ -148,23 +148,23 @@ function statusClearTimeout() {
  {% else %}
 
  {% set inputspec = '' %}
- {% if request.args.i %}
- {%  set inputspec = request.args.i + ':' %}
+ {% if request.args.list %}
+ {%  set inputspec = request.args.list + ':' %}
  {% endif %}
 
   <ul>
   {% for item in resultkeys %}
-   {% if request.args.t == '.' or request.args.t == '' or request.args.t is not defined %}
-    {% if request.args.i != request.args.i |trim('_') %}
-     <li><a href="{{ url_for('doc', doc=request.args.i, id=results[item][request.args.i].keys()|first) }}">{{ results[item][request.args.i].keys() | first}}</a></li> 
+   {% if request.args.tag == '.' or request.args.tag == '' or request.args.tag is not defined %}
+    {% if request.args.list != request.args.list |trim('_') %}
+     <li><a href="{{ url_for('doc', doc=request.args.list, id=results[item][request.args.list].keys()|first) }}">{{ results[item][request.args.list].keys() | first}}</a></li> 
     {% else %}
      <li><a href="{{ url_for('detail', id=item) }}">{{ item }}</a></li> 
     {% endif %}
    {% else %}
-    {% if request.args.i != request.args.i |trim('_') %}
-     <li><a href="{{ url_for('doc', doc=request.args.i, id=results[item][request.args.i].keys()|first) }}">{{ results[item][request.args.i].keys() | first}}: {{ item }}</a></li> 
+    {% if request.args.list != request.args.list |trim('_') %}
+     <li><a href="{{ url_for('doc', doc=request.args.list, id=results[item][request.args.list].keys()|first) }}">{{ results[item][request.args.list].keys() | first}}: {{ item }}</a></li> 
     {% else %}
-     <li><a href="{{ url_for('index', o='table', f= inputspec + request.args.t + '=' + item|urlencode ) }}">{{ item }}</a></li>
+     <li><a href="{{ url_for('index', output='table', filter= inputspec + request.args.tag + '=' + item|urlencode ) }}">{{ item }}</a></li>
     {% endif %}
    {% endif %}
   {% else %}
