@@ -5,6 +5,7 @@ NAMESPACE=default
 WEBUSER=demo
 WEBPASS=Test-It!
 PYTHON_MODULES=flask flask_basicauth python-dotenv PyYAML gunicorn jsonpath-ng
+VENV=.venv
 export BUILDTAG:=$(shell date +%Y%m%d.%H%M%S)
 
 HELM_OPTS:=--set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=$(BUILDTAG) --set basicAuthUsers.$(WEBUSER)=$(WEBPASS) --set image.pullPolicy=Always
@@ -12,28 +13,36 @@ APP_URL:=$(shell echo "$(KUBEURL)/$(NAME)/" | sed -e "s|://|://$(WEBUSER):$(WEBP
 
 all: install-with-datagenerator wait ping
 
-venv:
-	virtualenv venv --python=python3 && . venv/bin/activate && pip3 install $(PYTHON_MODULES)
+venv-initial:
+	python3 -m pip install --user virtualenv
+	python3 -m virtualenv $(VENV) && . $(VENV)/bin/activate && python3 -m pip install --upgrade pip && python3 -m pip install $(PYTHON_MODULES)
 
-requirements.txt: venv
-	. venv/bin/activate && pip3 freeze | grep -v pkg_resources==0.0.0 > requirements.txt
+requirements.txt: venv-initial
+	. $(VENV)/bin/activate && python3 -m pip freeze | grep -v pkg_resources==0.0.0 > requirements.txt
 
-run:	venv
-	. venv/bin/activate && cd src/ && VERBOSE=2 python3 ./app.py
+$(VENV): requirements.txt
+	python3 -m pip install --user virtualenv
+	python3 -m virtualenv $(VENV) && . $(VENV)/bin/activate && python3 -m pip install --upgrade pip && python3 -m pip install -r requirements.txt
 
-run-gunicorn:	venv
-	. venv/bin/activate && cd src && gunicorn --bind 0.0.0.0:8888 --access-logfile - wsgi:app
+run:	$(VENV)
+	. $(VENV)/bin/activate && cd src/ && FLASK_ENV=development VERBOSE=2 python3 ./app.py
+
+run-gunicorn:	$(VENV)
+	. $(VENV)/bin/activate && cd src && gunicorn --bind 0.0.0.0:8888 --access-logfile - wsgi:app
 
 clean:
-	rm -rf venv requirements.txt
+	rm -rf $(VENV)
 	find -name __pycache__ -type d -exec rm -rf '{}' ';' 2>/dev/null || true
 
-image: requirements.txt
+distclean: clean
+	rm -rf requirements.txt
+
+image: $(VENV)
 	docker build --build-arg BUILDTAG=$(BUILDTAG) -t $(IMAGE) .
 	docker tag $(IMAGE) $(DOCKER_REGISTRY)/$(IMAGE):$(BUILDTAG)
 	docker push $(DOCKER_REGISTRY)/$(IMAGE):$(BUILDTAG)
 
-imagerun: requirements.txt
+imagerun: $(VENV)
 	docker build -t $(IMAGE) .
 	docker run -it $(IMAGE)
 
@@ -63,4 +72,4 @@ install-with-datagenerator:
 	cd datagenerator/ && make
 	make HELM_OPTS="$(HELM_OPTS) --set companioncontainer.enabled=true --set companioncontainer.repository=$(DOCKER_REGISTRY)/datagenerator" install
 
-.PHONY: all run run-gunicorn clean image imagerun install-dry install wait uninstall init ping www install-with-datagenerator
+.PHONY: all run run-gunicorn venv-initial clean distclean image imagerun install-dry install wait uninstall init ping www install-with-datagenerator
