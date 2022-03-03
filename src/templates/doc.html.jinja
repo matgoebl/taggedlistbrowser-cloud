@@ -12,7 +12,7 @@
 
 <h2>Document '{{ id }}'</h2>
 
-<a href="{{ url_for('index', o='table', f=doc + ':' + id ) }}">&gt; Filter for referenced keys</a>
+<a href="{{ url_for('index', output='table', filter=doc + ':' + id ) }}">&gt; Filter for referenced keys</a>
 
 <pre id="json-renderer">
 </pre>
