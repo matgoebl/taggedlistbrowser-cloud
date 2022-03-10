@@ -83,24 +83,30 @@ init_duration = datetime.datetime.now() - init_start_time
 logging.info(f"done. Initialization took {init_duration.total_seconds():.3f} seconds.")
 
 
-@app.route("/")
+@app.route("/",methods = ['GET', 'POST'])
 def index():
     results = {}
     resultkeys = []
     errormsg = None
+
+    if request.method == 'POST':
+        args = request.form
+    else:
+        args = request.args
+
     try:
-        if 'query' in request.args or 'filter' in request.args:
-            preannotation_usable = (request.args.get('tag') == "." or request.args.get('tag') == None) and (request.args.get('list') == "*" or request.args.get('list') == None) and preannotated_model == True
+        if 'query' in args or 'filter' in args:
+            preannotation_usable = (args.get('tag') == "." or args.get('tag') == None) and (args.get('list') == "*" or args.get('list') == None) and preannotated_model == True
             if preannotation_usable:
                 annotatedresult = copy.deepcopy(annotatedresult_main)
             else:
-                result = model.query_valueset(request.args.get('tag'), request.args.get('list'), docspec)
+                result = model.query_valueset(args.get('tag'), args.get('list'), docspec)
                 annotatedresult = AnnotatedResults(model,result)
-            if request.args.get('query'):
-                annotatedresult.search(request.args.get('query').split())
-            if request.args.get('filter'):
-                annotatedresult.filter(request.args.get('filter').split(), tagspecs, docspec)
-            if ( request.args.get('output') == "table" or request.args.get('output') == "yaml" or (request.args.get('list') and request.args.get('list').startswith('_')) ) and not preannotation_usable:
+            if args.get('query'):
+                annotatedresult.search(args.get('query').split())
+            if args.get('filter'):
+                annotatedresult.filter(args.get('filter').split(), tagspecs, docspec)
+            if ( args.get('output') == "table" or args.get('output') == "yaml" or (args.get('list') and args.get('list').startswith('_')) ) and not preannotation_usable:
                 annotatedresult.annotate(tagspecs)
             results = annotatedresult.results()
             resultkeys = annotatedresult.keys()
@@ -109,7 +115,7 @@ def index():
         raise(e)
     logging.debug(f"Results: {yaml.dump(results)}")
 
-    if request.args.get('output') == "yaml" and not errormsg:
+    if args.get('output') == "yaml" and not errormsg:
         response = make_response(yaml.dump(results), 200)
         response.mimetype = "text/plain"
         return response
@@ -129,7 +135,7 @@ def index():
     mailbody_filled = mailbody.format( items=chr(10).join([k for k,v in results.items()]), docs=chr(10).join(alldocs) )
     mailto = mailaddrs + "?subject=" + urllib.parse.quote(mailsubject,safe='') + "&body=" + urllib.parse.quote(mailbody_filled,safe='')
 
-    return render_template('index.html.jinja', results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags, apptitle=apptitle, alldocs=alldocs, mailto=mailto, mailaddrs=mailaddrs, docurl=docurl )
+    return render_template('index.html.jinja', args=args, results=results, resultkeys=resultkeys, errormsg=errormsg, labels=['*'] + model.labels(), tags=tags, apptitle=apptitle, alldocs=alldocs, mailto=mailto, mailaddrs=mailaddrs, docurl=docurl )
 
 @app.route('/id/<string:id>')
 def detail(id):

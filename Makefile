@@ -76,4 +76,9 @@ install-with-datagenerator:
 	cd datagenerator/ && make
 	make HELM_OPTS="$(HELM_OPTS) --set companioncontainer.enabled=true --set companioncontainer.repository=$(DOCKER_REGISTRY)/datagenerator" install
 
+get-javascript-dependencies:
+	cd src/static/ && wget https://code.jquery.com/jquery-3.6.0.min.js
+	cd src/static/ && wget https://raw.githubusercontent.com/abodelot/jquery.json-viewer/master/json-viewer/jquery.json-viewer.js
+	cd src/static/ && wget https://raw.githubusercontent.com/abodelot/jquery.json-viewer/master/json-viewer/jquery.json-viewer.css
+
 .PHONY: all venv-setup run run-gunicorn clean distclean image imagerun install-dry install wait uninstall init ping www install-with-datagenerator
