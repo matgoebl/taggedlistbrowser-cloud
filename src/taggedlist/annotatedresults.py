@@ -114,7 +114,7 @@ class AnnotatedResults:
                 if self.is_annotated:
                     for item, annotation in self.items.items():
                         if ( tagvalue != '' and annotation.get(inputspec) and annotation[inputspec].get(tag) and len([ True for i in annotation[inputspec][tag] if fnmatch.fnmatch(i.lower(),tagvalue.lower()) ]) > 0 ) or \
-                           ( tagvalue == '' and len( (annotation.get(inputspec) and annotation[inputspec].get(tag)) or "" ) == 0 ):
+                           ( tagvalue == '' and len( (annotation.get(inputspec) and annotation[inputspec].get(tag)) or "" ) == 0 ):  # TODO: filtering for empty tags only available for preannotated mode
                             logging.debug(f"Filter found {tagvalue} in {inputspec}:{tag}")
                             keep_items.append(item)
                 else:
