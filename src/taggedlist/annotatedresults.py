@@ -113,8 +113,9 @@ class AnnotatedResults:
                 tagvalue = urllib.parse.unquote(tagvalue)
                 if self.is_annotated:
                     for item, annotation in self.items.items():
-                        if annotation.get(inputspec) and annotation[inputspec].get(tag) and len([ True for i in annotation[inputspec][tag] if fnmatch.fnmatch(i.lower(),tagvalue.lower()) ]) > 0:
-                            logging.debug(f"Filter found {tagvalue} in {input}:{tag}")
+                        if ( tagvalue != '' and annotation.get(inputspec) and annotation[inputspec].get(tag) and len([ True for i in annotation[inputspec][tag] if fnmatch.fnmatch(i.lower(),tagvalue.lower()) ]) > 0 ) or \
+                           ( tagvalue == '' and len( (annotation.get(inputspec) and annotation[inputspec].get(tag)) or "" ) == 0 ):
+                            logging.debug(f"Filter found {tagvalue} in {inputspec}:{tag}")
                             keep_items.append(item)
                 else:
                     jsonpath_expr = jsonpath_ng.parse(tagspecs[tag])

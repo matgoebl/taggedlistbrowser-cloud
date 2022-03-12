@@ -1,5 +1,5 @@
 FILES="model/hostlist.yaml,model/internal.yaml,model/external.yaml,model/./_docs/./*/*.json"
-TAGS=".,service,user"
+TAGS=".,service,user,color,info,summary,type"
 DOCSPEC="hosts[*]"
 PREANNOTATION="1"
 DOCEXTRACT="summary:info,emails[*]"
