@@ -125,6 +125,23 @@ class AnnotatedResults:
                         if len([ True for i in matches if fnmatch.fnmatch(i.lower(),tagvalue.lower()) ]) > 0:
                             logging.debug(f"Filter found {tagvalue} in {inputspec}:{tag}")
                             keep_items.append(item)
+            elif filter.find('~') >= 0:
+                (tag, tagvalue) = filter.split('~',2)
+                negate = tag[-1] == '!'
+                if negate:
+                    tag = tag[:-1]
+                tagvalue = urllib.parse.unquote(tagvalue)
+                jsonpath_expr = jsonpath_ng.parse("data." + tag)
+                regex = re.compile(tagvalue, re.IGNORECASE)
+                for item, annotation in self.items.items():
+                    keep = False
+                    if annotation.get(inputspec):
+                        for jsonmatch in [match.value for match in jsonpath_expr.find(annotation.get(inputspec))]:
+                            if regex.match(jsonmatch):
+                                logging.debug(f"Filter found regex {tagvalue} in {inputspec}: jsonpath {tag}")
+                                keep = True
+                    if keep != negate:
+                        keep_items.append(item)
             else:
                 keep_items = [match.value for match in jsonpath_ng.parse(docspec).find(self.taggedlists.lists[inputspec][filter])]
                 logging.debug(f"Filtering for keys {keep_items}")
