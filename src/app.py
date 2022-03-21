@@ -112,7 +112,8 @@ def index():
             resultkeys = annotatedresult.keys()
     except Exception as e:
         errormsg = repr(e)
-        raise(e)
+        logging.exception("Error while generating results:")
+
     logging.debug(f"Results: {yaml.dump(results)}")
 
     if args.get('output') == "yaml" and not errormsg:
@@ -155,6 +156,7 @@ def detail(id):
         results_yaml = yaml.dump(annotatedresult.results(),default_flow_style=False,encoding=None,width=160, indent=4)
     except Exception as e:
         errormsg = repr(e)
+        logging.exception("Error while generating results:")
 
     data = {}
     try:
@@ -177,6 +179,7 @@ def doc(doc,id):
         doc_json = json.dumps(result, indent=2)
     except Exception as e:
         errormsg = repr(e)
+        logging.exception("Error while generating results:")
 
     return render_template('doc.html.jinja', doc_json=doc_json, errormsg=errormsg, id=id, doc=doc, apptitle=apptitle, docscript=docscript )
 
