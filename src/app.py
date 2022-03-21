@@ -95,15 +95,20 @@ def index():
         args = request.args
 
     try:
-        if 'query' in args or 'filter' in args:
+        query = args.get('query')
+        if query:
+            query = re.sub(r'(^|\s)"'  , '\n', query, re.MULTILINE);
+            query = re.sub(r'",?($|\s)', '\n', query, re.MULTILINE);
+
+        if query or 'filter' in args:
             preannotation_usable = (args.get('tag') == "." or args.get('tag') == None) and (args.get('list') == "*" or args.get('list') == None) and preannotated_model == True
             if preannotation_usable:
                 annotatedresult = copy.deepcopy(annotatedresult_main)
             else:
                 result = model.query_valueset(args.get('tag'), args.get('list'), docspec)
                 annotatedresult = AnnotatedResults(model,result)
-            if args.get('query'):
-                annotatedresult.search(args.get('query').split())
+            if query:
+                annotatedresult.search(query.split())
             if args.get('filter'):
                 annotatedresult.filter(args.get('filter').split(), tagspecs, docspec)
             if ( args.get('output') == "table" or args.get('output') == "yaml" or (args.get('list') and args.get('list').startswith('_')) ) and not preannotation_usable:
