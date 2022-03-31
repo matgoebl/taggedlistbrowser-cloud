@@ -97,8 +97,10 @@ def index():
     try:
         query = args.get('query')
         if query:
-            query = re.sub(r'(^|\s)"'  , '\n', query, re.MULTILINE);
-            query = re.sub(r'",?($|\s)', '\n', query, re.MULTILINE);
+            query = re.sub(r'(^|\s)"'  , '\n', query, flags = re.MULTILINE);
+            query = re.sub(r'",?($|\s)', '\n', query, flags = re.MULTILINE);
+            query = re.sub(r'\s+'      , '\n', query, flags = re.MULTILINE);
+            query = re.sub(r'(^\n|\n$)', ''  , query);
 
         if query or 'filter' in args:
             preannotation_usable = (args.get('tag') == "." or args.get('tag') == None) and (args.get('list') == "*" or args.get('list') == None) and preannotated_model == True
