@@ -75,7 +75,7 @@ if preannotated_model:
     annotatedresult_main = AnnotatedResults(model, result)
     annotatedresult_main.preannotate(tagspecs, docspec, docextract)
 
-if preprocessor:
+if preprocessor and preannotated_model:
     preprocessor_mod = importlib.import_module(preprocessor)
     preprocessor_mod.preprocess(model.lists, annotatedresult_main.items)
 

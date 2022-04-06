@@ -137,6 +137,8 @@ class AnnotatedResults:
                     keep = False
                     if annotation.get(inputspec):
                         for jsonmatch in [match.value for match in jsonpath_expr.find(annotation.get(inputspec))]:
+                            if jsonmatch == None:
+                                jsonmatch = 'null'
                             if regex.match(jsonmatch):
                                 logging.debug(f"Filter found regex {tagvalue} in {inputspec}: jsonpath {tag}")
                                 keep = True
