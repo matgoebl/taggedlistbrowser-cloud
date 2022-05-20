@@ -121,7 +121,8 @@ function statusClearTimeout() {
       <th>{{labels[4]|trim('_')}}</th>
      {% endif %}
     </tr>
-  {% for id, item in results.items() %}
+  {% for id in resultkeys %}
+    {% set item = results[id] %}
     <tr>
      <td><a href="{{ url_for('detail', id=id) }}" class=key>{{ id }}</a></td>
      <td>{% if item[labels[1]] is defined %}{{item[labels[1]].info|join(' ')}}{% endif %}</td>

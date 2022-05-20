@@ -117,6 +117,7 @@ def index():
                 annotatedresult.annotate(tagspecs)
             results = annotatedresult.results()
             resultkeys = annotatedresult.keys()
+            resultkeys.sort()
     except Exception as e:
         errormsg = repr(e)
         logging.exception("Error while generating results:")
