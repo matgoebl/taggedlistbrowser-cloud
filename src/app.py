@@ -15,7 +15,6 @@ import urllib.parse
 import importlib
 from string import Template
 from flask import Flask, request, render_template, make_response, g
-from flask_basicauth import BasicAuth
 from jinja2 import Environment, select_autoescape
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -40,8 +39,6 @@ mailsubject = os.environ.get('MAILSUBJECT','Hello from administration')
 mailbody = os.environ.get('MAILBODY',"The hosts\n{items}\n\nfrom documents\n{docs}\n\nare affected.")
 preannotated_model = os.environ.get('PREANNOTATION','0') == "1"
 apptitle = os.environ.get('APPTITLE','Tagged List Browser')
-auth_user = os.environ.get('BASIC_AUTH_USERNAME')
-auth_pass = os.environ.get('BASIC_AUTH_PASSWORD')
 
 tagspecs = { t.split("=")[0]: t.split("=")[-1] for t in tagspec.split(",")}
 tags = [ t.split("=")[0] for t in tagspec.split(",")]
@@ -61,12 +58,6 @@ Flask.jinja_options = {
     'line_statement_prefix': '%'
 }
 app = Flask(__name__)
-
-if auth_user and auth_pass:
-    app.config['BASIC_AUTH_USERNAME'] = auth_user
-    app.config['BASIC_AUTH_PASSWORD'] = auth_pass
-    app.config['BASIC_AUTH_FORCE'] = True
-    basic_auth = BasicAuth(app)
 
 
 if preannotated_model:
