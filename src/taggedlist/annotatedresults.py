@@ -127,21 +127,32 @@ class AnnotatedResults:
                             keep_items.append(item)
             elif filter.find('~') >= 0:
                 (tag, tagvalue) = filter.split('~',2)
-                negate = tag[-1] == '!'
+                negate = len(tag) > 0 and tag[-1] == '!'
                 if negate:
                     tag = tag[:-1]
                 tagvalue = urllib.parse.unquote(tagvalue)
-                jsonpath_expr = jsonpath_ng.parse("data." + tag)
+                tag = "data." + tag
+                keysearch = tag[-1] == '.'
+                if keysearch:
+                    tag = tag[:-1]
+                jsonpath_expr = jsonpath_ng.parse(tag)
                 regex = re.compile(tagvalue, re.IGNORECASE)
                 for item, annotation in self.items.items():
                     keep = False
                     if annotation.get(inputspec):
                         for jsonmatch in [match.value for match in jsonpath_expr.find(annotation.get(inputspec))]:
-                            if jsonmatch == None:
-                                jsonmatch = 'null'
-                            if regex.match(jsonmatch):
-                                logging.debug(f"Filter found regex {tagvalue} in {inputspec}: jsonpath {tag}")
-                                keep = True
+                            if not keysearch:
+                                if jsonmatch == None:
+                                    jsonmatch = 'null'
+                                if regex.match(jsonmatch):
+                                    logging.debug(f"Filter found value regex {tagvalue} in {inputspec}: jsonpath {tag}")
+                                    keep = True
+                            else:
+                                if jsonmatch != None:
+                                    for jsonkey in jsonmatch.keys():
+                                        if regex.match(jsonkey):
+                                            logging.debug(f"Filter found key regex {tagvalue} in {inputspec}: jsonpath {tag}: {jsonkey}")
+                                            keep = True
                     if keep != negate:
                         keep_items.append(item)
             else:
