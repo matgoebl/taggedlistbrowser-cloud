@@ -18,7 +18,7 @@
    * @return boolean
    */
   function isUrl(string) {
-    var urlRegexp = /^((https?:\/\/|ftps?:\/\/)([a-z0-9%-]+\.){1,}([a-z0-9-]+)?(:(\d{1,5}))?(\/([a-z0-9\-._~:/?#[\]@!$&'()*+,;=%]+)?)?|mailto:.*@.*)$/i;
+    var urlRegexp = /^((https?:\/\/|ftps?:\/\/)([a-z0-9%-]+\.){1,}([a-z0-9-]+)?(:(\d{1,5}))?(\/([a-z0-9\-._~:/?#[\]@!$&'()*+,;=%]+)?)?|mailto:[^ |]*@[^ |]*)$/i;
     return urlRegexp.test(string);
   }
 
@@ -39,6 +39,8 @@
 
       if (options.withLinks && isUrl(json)) {
         html += '<a href="' + json + '" class="json-string" target="_blank">' + json + '</a>';
+      } else if (options.withLinks && isUrl(json.split("|",1))) { // URL with link text, separated by space
+        html += '<a href="' + json.split("|",1) + '" class="json-string" target="_blank">' + json.split("|").slice(1).join(' ') + '</a>';
       } else {
         // Escape double quotes in the rendered non-URL string.
         json = json.replace(/&quot;/g, '\\&quot;');
