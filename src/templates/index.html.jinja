@@ -30,8 +30,24 @@
    {% endfor %}
   </select>
  </td></tr>
- <tr><th align=right valign=top> Starting with (or RegEx): </th><td> <textarea name=query rows='5' cols='50'>{{ args.query or "*" }}</textarea> <br>(separate multiple search string with whitespace, uses "or" conjunction)</td></tr>
- <tr><th align=right valign=top> Filter(s):                </th><td> <input type=input name=filter size='50' value='{{ args.filter }}'> <br>(separate multiple filters by whitespace, uses "and" conjunction)</td></tr>
+ <tr><th align=right valign=top> Starting with (or RegEx): </th><td class="tooltip"> <textarea name=query rows='5' cols='50'>{{ args.query or "*" }}</textarea>
+  <div class="tooltiptext">
+   <li>separate multiple search strings with whitespace (uses 'or' conjunction)
+   <li>use * for wildcards (no regex here!)
+   <li>any amount of whitespace is allowed
+   <li>, and " are stripped, so pasting json arrays like "a.b","c.d" works
+  </div>
+  </td></tr>
+ <tr><th align=right valign=top> Filter(s):                </th><td class="tooltip"> <input type=input name=filter size='50' value='{{ args.filter }}'>
+  <div class="tooltiptext">
+   <li>separate multiple filters by whitespace
+   <li>all filters must match ('and' conjunction),
+   <li>syntax for simple tag search is: INPUTDOCUMENT:TAG=VALUE
+   <li>regex searching the whole json: INPUTDOCUMENT:JSONPATH~REGEX
+   <li>regex with negation: INPUTDOCUMENT:JSONPATH!~REGEX ,
+   <li>if the JSONPATH is empty or ends with . then keys (not values) are searched
+  </div>
+  </td></tr>
  <tr><th align=right> Output:                   </th><td> 
   <input type="radio" name="output" value="list"
    {% if args.output == "list" or args.output is not defined %}

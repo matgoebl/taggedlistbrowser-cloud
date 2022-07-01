@@ -71,6 +71,30 @@ a, a:visited {
 .results tr:hover {
   background-color: #aaaaaa;
 }
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    position: absolute;
+    bottom: -150px;
+    left: 50px;
+    width: 600px;
+    height: 150px;
+    z-index: 1;
+    display: block;
+    background: #dddddd;
+    padding: 5px 5px;
+    border: 2px solid #aaaaaa;
+    box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.5);
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
 </style>
 <script src="{{ url_for('static', filename='jquery-3.6.0.min.js') }}"></script>
 </head>
