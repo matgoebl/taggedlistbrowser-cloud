@@ -39,7 +39,7 @@
 
       if (options.withLinks && isUrl(json)) {
         html += '<a href="' + json + '" class="json-string" target="_blank">' + json + '</a>';
-      } else if (options.withLinks && isUrl(json.split("|",1))) { // URL with link text, separated by space
+      } else if (options.withLinks && isUrl(json.split("|",1))) { // URL with link text, separated by bar
         html += '<a href="' + json.split("|",1) + '" class="json-string" target="_blank">' + json.split("|").slice(1).join(' ') + '</a>';
       } else {
         // Escape double quotes in the rendered non-URL string.

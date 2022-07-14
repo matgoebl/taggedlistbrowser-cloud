@@ -19,3 +19,7 @@ nested.example.com:
 internal.example.com:
   user: joe
   service: MONITOR
+  list:
+  - a
+  - b
+  - c

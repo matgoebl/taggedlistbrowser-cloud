@@ -81,7 +81,7 @@ a, a:visited {
     visibility: hidden;
     position: absolute;
     bottom: -150px;
-    left: 50px;
+    left: 250px;
     width: 600px;
     height: 150px;
     z-index: 1;
@@ -101,7 +101,7 @@ a, a:visited {
 
 <body>
 
-<a href='{{ url_for('index')}}'>&lt;Home</a>
+<a href='{{ url_for('index')}}' id="home">&lt;Home</a>
 <a href="javascript:history.back()">&lt;Back</a>
 
 <h1>{{ apptitle }} - {{ self.title() }}</h1>

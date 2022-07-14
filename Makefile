@@ -24,13 +24,11 @@ requirements.txt:
 $(VENV): requirements.txt
 	python3 -m pip install --user virtualenv
 	python3 -m virtualenv $(VENV) && . $(VENV)/bin/activate && python3 -m pip install -r requirements.txt
-	touch $(VENV)/.stamp
+	touch $(VENV)
 
-$(VENV)/.stamp: $(VENV)
+venv: $(VENV)
 
-venv-setup: $(VENV)/.stamp
-
-run: $(VENV)/.stamp
+run: venv
 	. $(VENV)/bin/activate && cd src/ && FLASK_ENV=development VERBOSE=2 python3 ./app.py
 
 run-gunicorn: $(VENV)/.stamp
@@ -88,4 +86,4 @@ get-javascript-dependencies:
 	cd src/static/ && wget https://raw.githubusercontent.com/abodelot/jquery.json-viewer/master/json-viewer/jquery.json-viewer.js
 	cd src/static/ && wget https://raw.githubusercontent.com/abodelot/jquery.json-viewer/master/json-viewer/jquery.json-viewer.css
 
-.PHONY: all venv-setup run run-gunicorn clean distclean image imagerun install-dry install wait uninstall init ping www install-with-datagenerator
+.PHONY: all run run-gunicorn clean distclean image imagerun install-dry install wait uninstall init ping www install-with-datagenerator

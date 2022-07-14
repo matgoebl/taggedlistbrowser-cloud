@@ -141,18 +141,24 @@ class AnnotatedResults:
                     keep = False
                     if annotation.get(inputspec):
                         for jsonmatch in [match.value for match in jsonpath_expr.find(annotation.get(inputspec))]:
-                            if not keysearch:
+                            if keysearch:
+                                if jsonmatch != None:
+                                    if isinstance(jsonmatch,dict):
+                                        for jsonkey in jsonmatch.keys():
+                                            if regex.match(jsonkey):
+                                                logging.debug(f"Filter found key regex {tagvalue} in {inputspec}: jsonpath {tag}: {jsonkey}")
+                                                keep = True
+                                    else:
+                                        for jsonkey in jsonmatch:
+                                            if regex.match(jsonkey):
+                                                logging.debug(f"Filter found key regex {tagvalue} in {inputspec}: jsonpath {tag}: {jsonkey}")
+                                                keep = True
+                            else:
                                 if jsonmatch == None:
                                     jsonmatch = 'null'
                                 if regex.match(jsonmatch):
                                     logging.debug(f"Filter found value regex {tagvalue} in {inputspec}: jsonpath {tag}")
                                     keep = True
-                            else:
-                                if jsonmatch != None:
-                                    for jsonkey in jsonmatch.keys():
-                                        if regex.match(jsonkey):
-                                            logging.debug(f"Filter found key regex {tagvalue} in {inputspec}: jsonpath {tag}: {jsonkey}")
-                                            keep = True
                     if keep != negate:
                         keep_items.append(item)
             else:
