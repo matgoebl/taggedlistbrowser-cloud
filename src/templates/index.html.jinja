@@ -71,6 +71,12 @@
     checked
    {% endif %}
   >Extra columns
+
+  <input type="checkbox" name="details" value="true"
+   {% if args.extra == "details" %}
+    checked
+   {% endif %}
+  >Details
  </td></tr>
  <tr><th>                           </th><td> <input type=submit value='Search'> </td></tr>
 </table>
@@ -106,6 +112,13 @@ function copytoclipboard() {
  return false;
 }
 
+function removelinks() {
+ $('table a').replaceWith(function() {
+  return this.childNodes;
+ });
+ return false;
+}
+
 function statusClearTimeout() {
  setTimeout (
   function () {
@@ -114,6 +127,23 @@ function statusClearTimeout() {
   3000
  );
 }
+
+function show_details(checked) {
+ if(checked) {
+  $('.detail').show();
+  $('.detail').attr('overflow', 'visible');
+ } else {
+  $('.detail').hide();
+ }
+}
+
+$('[name="details"]').change(function() {
+ show_details(this.checked);
+});
+
+$(function() {
+ show_details(false);
+});
 
 </script>
 
@@ -127,12 +157,12 @@ function statusClearTimeout() {
  <h2>Results for {{ args.query | e | truncate(80) }} {{ args.filter | e }}</h2>
  {% if args.output == "table" and ( args.tag == '.' or args.tag == '' or args.tag is not defined ) %}
   <table class="results">
-    <tr><th colspan=2>{{labels[1]}}</th><th colspan=4>{{labels[2]}}</th><th colspan=2>{{labels[3]}}</th>
+    <tr><th colspan=2 style='border-right:none'>{{labels[1]}}</th><th class='detail' style='border-left:none'></th><th colspan=4>{{labels[2]}}</th><th colspan=2>{{labels[3]}}</th>
      {% if args.extra == "true" %}
       <th>{{labels[4]|trim('_')}}</th>
      {% endif %}
     </tr>
-    <tr><th>key</th><th>info</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th><th>{{tags[3]}}</th><th>{{tags[4]}}</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th>
+    <tr><th>key</th><th>info</th><th class='detail'>details</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th><th>{{tags[3]}}</th><th>{{tags[4]}}</th><th>{{tags[1]}}</th><th>{{tags[2]}}</th>
      {% if args.extra == "true" %}
       <th>{{labels[4]|trim('_')}}</th>
      {% endif %}
@@ -142,6 +172,7 @@ function statusClearTimeout() {
     <tr>
      <td><a href="{{ url_for('detail', id=id) }}" class=key>{{ id }}</a></td>
      <td>{% if item[labels[1]] is defined %}{{item[labels[1]].info|join(' ')}}{% endif %}</td>
+     <td class='detail'>{% if item[labels[1]] is defined %}{{item[labels[1]].details|join(' ')}}{% endif %}</td>
      <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[1]] is defined %}{% for i in item[labels[2]][tags[1]] %}<a href="{{ url_for('index', output='table', query=args.query, filter=currfilter + labels[2] + ':' + tags[1] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
      <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[2]] is defined %}{% for i in item[labels[2]][tags[2]] %}<a href="{{ url_for('index', output='table', query=args.query, filter=currfilter + labels[2] + ':' + tags[2] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
      <td>{% if item[labels[2]] is defined %}{% if item[labels[2]][tags[3]] is defined %}{% for i in item[labels[2]][tags[3]] %}<a href="{{ url_for('index', output='table', query=args.query, filter=currfilter + labels[2] + ':' + tags[3] + '=' + i ) }}">{{ i }}</a> {% endfor %}{% endif %}{% endif %}</td>
@@ -157,6 +188,7 @@ function statusClearTimeout() {
        {{results|length}} results.
        <input type="button" value="copy to clipboard" onclick="copytoclipboard()">
        <span id=status></span>
+       <input type="button" value="remove all links" onclick="removelinks()">
       </td>
      {% if args.extra == "true" %}
      <td>{% if alldocs is defined %}{% for i in alldocs %}<a
