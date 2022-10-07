@@ -145,18 +145,18 @@ class AnnotatedResults:
                                 if jsonmatch != None:
                                     if isinstance(jsonmatch,dict):
                                         for jsonkey in jsonmatch.keys():
-                                            if regex.match(jsonkey):
+                                            if regex.search(jsonkey):
                                                 logging.debug(f"Filter found key regex {tagvalue} in {inputspec}: jsonpath {tag}: {jsonkey}")
                                                 keep = True
                                     else:
                                         for jsonkey in jsonmatch:
-                                            if regex.match(jsonkey):
+                                            if regex.search(jsonkey):
                                                 logging.debug(f"Filter found key regex {tagvalue} in {inputspec}: jsonpath {tag}: {jsonkey}")
                                                 keep = True
                             else:
                                 if jsonmatch == None:
                                     jsonmatch = 'null'
-                                if regex.match(jsonmatch):
+                                if regex.search(jsonmatch):
                                     logging.debug(f"Filter found value regex {tagvalue} in {inputspec}: jsonpath {tag}")
                                     keep = True
                     if keep != negate:
