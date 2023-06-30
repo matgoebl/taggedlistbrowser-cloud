@@ -2,16 +2,23 @@
 IMAGE=taggedlistbrowser
 NAME=$(IMAGE)1
 NAMESPACE=default
+
 WEBUSER=demo
 WEBPASS_CMD=echo 'Test-It!'
 #WEBPASS_CMD=aws secretsmanager --profile someprofile get-secret-value --secret-id $(WEBUSER) --no-cli-pager --output json | jq -r .SecretString
 WEBPASS=$(shell $(WEBPASS_CMD))
 
-PYTHON_MODULES=flask python-dotenv PyYAML gunicorn jsonpath-ng
+#OIDC_CLIENT_SECRET=
+#OIDC_CLIENT_ID=
+#OIDC_METADATA_URL=https://xxx/.well-known/openid-configuration
+
+PYTHON_MODULES=flask python-dotenv PyYAML gunicorn jsonpath-ng authlib requests
 VENV=.venv
 export BUILDTAG:=$(shell date +%Y%m%d.%H%M%S)
 
-HELM_OPTS:=--set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=$(BUILDTAG) --set ingresspath.basicauthsecret=basicauth-$(IMAGE) --set image.pullPolicy=Always
+HELM_OPTS:=--set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=$(BUILDTAG) --set image.pullPolicy=Always
+HELM_OPTS:=$(HELM_OPTS) --set ingresspath.basicauthsecret=basicauth-$(IMAGE)
+#HELM_OPTS:=$(HELM_OPTS) --set env.OIDC_CLIENT_SECRET=$(OIDC_CLIENT_SECRET) --set env.OIDC_CLIENT_ID=$(OIDC_CLIENT_ID) --set env.OIDC_METADATA_URL=$(OIDC_METADATA_URL) --set env.APP_SECRET_KEY=$(shell uuidgen)
 APP_URL:=$(shell echo "$(KUBEURL)/$(NAME)/" | sed -e "s|://|://$(WEBUSER):$(WEBPASS)@|")
 
 all: install-with-datagenerator wait ping
@@ -31,7 +38,7 @@ venv: $(VENV)
 run: venv
 	. $(VENV)/bin/activate && cd src/ && FLASK_ENV=development VERBOSE=2 python3 ./app.py
 
-run-gunicorn: $(VENV)/.stamp
+run-gunicorn: $(VENV)
 	. $(VENV)/bin/activate && cd src && gunicorn --bind 0.0.0.0:8888 --access-logfile - wsgi:app
 
 clean:
@@ -42,12 +49,12 @@ clean:
 distclean: clean
 	rm -rf requirements.txt
 
-image: $(VENV)/.stamp
+image: $(VENV)
 	docker build --build-arg BUILDTAG=$(BUILDTAG) -t $(IMAGE) .
 	docker tag $(IMAGE) $(DOCKER_REGISTRY)/$(IMAGE):$(BUILDTAG)
 	docker push $(DOCKER_REGISTRY)/$(IMAGE):$(BUILDTAG)
 
-imagerun: $(VENV)/.stamp
+imagerun: $(VENV)
 	docker build -t $(IMAGE) .
 	docker run -it $(IMAGE)
 
@@ -59,6 +66,7 @@ install: image basicauth_secret_update
 	helm upgrade --install $(HELM_OPTS) --namespace=$(NAMESPACE) $(NAME) ./taggedlistbrowser-helm
 
 basicauth_secret_update:
+	-kubectl create namespace $(NAMESPACE)
 	$(WEBPASS_CMD) | htpasswd -i -n "$(WEBUSER)" | kubectl --namespace=$(NAMESPACE) create secret generic basicauth-$(IMAGE) --from-file=auth=/dev/stdin --dry-run=client --output=yaml --save-config | kubectl apply -f -
 
 wait:
