@@ -195,7 +195,7 @@ def add_header(response):
     if 'time_start' in g:
         page_duration = datetime.datetime.now() - g.time_start
         page_duration_fmt = f"{page_duration.total_seconds():.3f}"
-        if response.response and 200 <= response.status_code < 300 and response.content_type.startswith('text/html'):
+        if response.response and 200 <= response.status_code < 300 and response.content_type.startswith('text/html') and not response.direct_passthrough:
             response.set_data(response.get_data().replace(b'%PAGETIME%', bytes(page_duration_fmt, 'utf-8')))
 
     return response

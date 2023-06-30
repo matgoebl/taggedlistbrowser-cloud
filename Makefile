@@ -31,7 +31,7 @@ venv: $(VENV)
 run: venv
 	. $(VENV)/bin/activate && cd src/ && FLASK_ENV=development VERBOSE=2 python3 ./app.py
 
-run-gunicorn: $(VENV)/.stamp
+run-gunicorn: $(VENV)
 	. $(VENV)/bin/activate && cd src && gunicorn --bind 0.0.0.0:8888 --access-logfile - wsgi:app
 
 clean:
@@ -42,12 +42,12 @@ clean:
 distclean: clean
 	rm -rf requirements.txt
 
-image: $(VENV)/.stamp
+image: $(VENV)
 	docker build --build-arg BUILDTAG=$(BUILDTAG) -t $(IMAGE) .
 	docker tag $(IMAGE) $(DOCKER_REGISTRY)/$(IMAGE):$(BUILDTAG)
 	docker push $(DOCKER_REGISTRY)/$(IMAGE):$(BUILDTAG)
 
-imagerun: $(VENV)/.stamp
+imagerun: $(VENV)
 	docker build -t $(IMAGE) .
 	docker run -it $(IMAGE)
 
@@ -59,6 +59,7 @@ install: image basicauth_secret_update
 	helm upgrade --install $(HELM_OPTS) --namespace=$(NAMESPACE) $(NAME) ./taggedlistbrowser-helm
 
 basicauth_secret_update:
+	-kubectl create namespace $(NAMESPACE)
 	$(WEBPASS_CMD) | htpasswd -i -n "$(WEBUSER)" | kubectl --namespace=$(NAMESPACE) create secret generic basicauth-$(IMAGE) --from-file=auth=/dev/stdin --dry-run=client --output=yaml --save-config | kubectl apply -f -
 
 wait:
