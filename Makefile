@@ -2,16 +2,23 @@
 IMAGE=taggedlistbrowser
 NAME=$(IMAGE)1
 NAMESPACE=default
+
 WEBUSER=demo
 WEBPASS_CMD=echo 'Test-It!'
 #WEBPASS_CMD=aws secretsmanager --profile someprofile get-secret-value --secret-id $(WEBUSER) --no-cli-pager --output json | jq -r .SecretString
 WEBPASS=$(shell $(WEBPASS_CMD))
 
-PYTHON_MODULES=flask python-dotenv PyYAML gunicorn jsonpath-ng
+#OIDC_CLIENT_SECRET=
+#OIDC_CLIENT_ID=
+#OIDC_METADATA_URL=https://xxx/.well-known/openid-configuration
+
+PYTHON_MODULES=flask python-dotenv PyYAML gunicorn jsonpath-ng authlib requests
 VENV=.venv
 export BUILDTAG:=$(shell date +%Y%m%d.%H%M%S)
 
-HELM_OPTS:=--set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=$(BUILDTAG) --set ingresspath.basicauthsecret=basicauth-$(IMAGE) --set image.pullPolicy=Always
+HELM_OPTS:=--set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=$(BUILDTAG) --set image.pullPolicy=Always
+HELM_OPTS:=$(HELM_OPTS) --set ingresspath.basicauthsecret=basicauth-$(IMAGE)
+#HELM_OPTS:=$(HELM_OPTS) --set env.OIDC_CLIENT_SECRET=$(OIDC_CLIENT_SECRET) --set env.OIDC_CLIENT_ID=$(OIDC_CLIENT_ID) --set env.OIDC_METADATA_URL=$(OIDC_METADATA_URL) --set env.APP_SECRET_KEY=$(shell uuidgen)
 APP_URL:=$(shell echo "$(KUBEURL)/$(NAME)/" | sed -e "s|://|://$(WEBUSER):$(WEBPASS)@|")
 
 all: install-with-datagenerator wait ping

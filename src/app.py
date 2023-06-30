@@ -14,9 +14,11 @@ import jsonpath_ng
 import urllib.parse
 import importlib
 from string import Template
-from flask import Flask, request, render_template, make_response, g
+from flask import Flask, request, render_template, make_response, g, session, redirect, url_for
 from jinja2 import Environment, select_autoescape
 from werkzeug.middleware.proxy_fix import ProxyFix
+from authlib.integrations.flask_client import OAuth
+import uuid
 
 from taggedlist import TaggedLists, AnnotatedResults
 from taggedlist.helper import array_flatten_sort_uniq
@@ -59,6 +61,21 @@ Flask.jinja_options = {
 }
 app = Flask(__name__)
 
+app.secret_key = os.environ.get("APP_SECRET_KEY", uuid.uuid4().hex)
+app.config.update(
+    {
+        "OIDC_CLIENT_ID": os.environ.get("OIDC_CLIENT_ID"),
+        "OIDC_CLIENT_SECRET": os.environ.get("OIDC_CLIENT_SECRET"),
+    }
+)
+
+oauth = OAuth(app)
+oauth.register(
+    name="oidc",
+    server_metadata_url=os.environ.get("OIDC_METADATA_URL", ""),
+    token_endpoint_auth_method=os.environ.get("OIDC_AUTH_METHOD", "client_secret_post"),
+    scope=os.environ.get("OIDC_SCOPE", "openid"),
+)
 
 if preannotated_model:
     logging.debug(f"Prepare full annotated model...")
@@ -183,9 +200,33 @@ def doc(doc,id):
     return render_template('doc.html.jinja', doc_json=doc_json, errormsg=errormsg, id=id, doc=doc, apptitle=apptitle, docscript=docscript )
 
 
+@app.route("/oidc_callback")
+def oidc_callback():
+    token = oauth.oidc.authorize_access_token()
+    userinfo = oauth.oidc.userinfo(token=token)
+    session["userinfo"] = userinfo
+    return redirect(url_for("index"))
+
+
+@app.route("/logout")
+def logout():
+    session.pop("userinfo", None)
+    return redirect(url_for("index"))
+
+
 @app.before_request
 def start_timer():
-  g.time_start = datetime.datetime.now()
+    g.time_start = datetime.datetime.now()
+
+    userinfo = session.get("userinfo")
+    logging.debug(f"OIDC UserInfo: {userinfo}")
+    if request.path in ('/oidc_callback', '/logout'):
+        return
+    if app.config["OIDC_CLIENT_ID"] and not userinfo:
+        redirect_uri = url_for("oidc_callback", _external=True)
+        return oauth.oidc.authorize_redirect(redirect_uri)
+    if preprocessor_mod and preprocessor_mod.oidc_authorize:
+        return preprocessor_mod.oidc_authorize(userinfo)
 
 @app.after_request
 def add_header(response):

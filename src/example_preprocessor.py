@@ -18,3 +18,7 @@ def preprocess(model_lists, annotatedresult_items, testing = False):
                 logging.info(f"Preprocessing {label}:{filename} ...")
                 for host in doc["hosts"]:
                     add_doc_item(host,"bookings",filename.split("/")[0],doc["info"])
+
+def oidc_authorize(userinfo):
+    if userinfo and userinfo["sub"] != 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx':
+        return f"Sorry, you are not authorized, your userinfo is {userinfo}."
