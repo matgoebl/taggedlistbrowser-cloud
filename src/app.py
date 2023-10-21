@@ -205,13 +205,15 @@ def oidc_callback():
     token = oauth.oidc.authorize_access_token()
     userinfo = oauth.oidc.userinfo(token=token)
     session["userinfo"] = userinfo
+    if session["next_url"]:
+        return redirect(session["next_url"])
     return redirect(url_for("index"))
 
 
 @app.route("/logout")
 def logout():
     session.pop("userinfo", None)
-    return redirect(url_for("index"))
+    return "logged out."
 
 
 @app.before_request
@@ -224,6 +226,7 @@ def start_timer():
         return
     if app.config["OIDC_CLIENT_ID"] and not userinfo:
         redirect_uri = url_for("oidc_callback", _external=True)
+        session["next_url"] = request.url
         return oauth.oidc.authorize_redirect(redirect_uri)
     if preprocessor_mod and preprocessor_mod.oidc_authorize:
         return preprocessor_mod.oidc_authorize(userinfo)
