@@ -2,7 +2,7 @@
 IMAGE=taggedlistbrowser
 NAME=$(IMAGE)1
 NAMESPACE=default
-URLPATH=$(NAME)
+URLPATH=/$(NAME)
 DNSNAME=example.com
 
 WEBUSER=demo
