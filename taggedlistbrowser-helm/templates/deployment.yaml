@@ -59,8 +59,11 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
 
-{{ if .Values.companioncontainer.enabled }}
           volumeMounts:
+          - name: tmp
+            mountPath: "/tmp"
+            readOnly: false
+{{ if .Values.companioncontainer.enabled }}
           - name: data
             mountPath: "/app/data"
             readOnly: true
@@ -75,10 +78,12 @@ spec:
           - name: data
             mountPath: "/app/data"
             readOnly: false
+{{ end }}
       volumes:
       - name: data
         emptyDir: {}
-{{ end }}
+      - name: tmp
+        emptyDir: {}
 
       {{- with .Values.nodeSelector }}
       nodeSelector:

@@ -104,6 +104,8 @@ a, a:visited {
 <a href='{{ url_for('index')}}' id="home">&lt;Home</a>
 <a href="javascript:history.back()">&lt;Back</a>
 
+<b><span id=warning></span></b>
+
 <h1>{{ apptitle }} - {{ self.title() }}</h1>
 
 {% block content %}
@@ -117,9 +119,9 @@ a, a:visited {
 
 <div class="footer">
 Page generation time: %PAGETIME% seconds. <br>
-Build: {% include "build.txt" ignore missing %} <br>
+<a href="{{ url_for('static', filename='buildinfo.txt') }}">Build:</a> <span id=build>{% include "build.txt" ignore missing %}</span> <br>
 Tagged List Browser - <a href='https://github.com/matgoebl/taggedlistbrowser-cloud/'>https://github.com/matgoebl/taggedlistbrowser-cloud/</a> <br>
-(c) 2021,2022 Copyright: Matthias Goebl (matthias dot goebl at goebl dot net) <br>
+(c) 2021-2024 Copyright: Matthias Goebl (matthias dot goebl at goebl dot net) <br>
 </div>
 </body>
 </html>

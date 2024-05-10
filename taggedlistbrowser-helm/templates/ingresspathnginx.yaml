@@ -13,7 +13,8 @@ metadata:
   labels:
     {{- include "taggedlistbrowser.labels" . | nindent 4 }}
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
     nginx.ingress.kubernetes.io/limit-connections: '{{ .Values.env.WORKERS }}'
     nginx.ingress.kubernetes.io/x-forwarded-prefix: "/{{ $ingressPath }}"
 {{- if .Values.ingresspath.basicauthsecret }}
@@ -21,14 +22,14 @@ metadata:
     nginx.ingress.kubernetes.io/auth-secret: {{ .Values.ingresspath.basicauthsecret}}
     nginx.ingress.kubernetes.io/auth-realm: ""
 {{- end }}
-    kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/service-upstream: "true"
 spec:
+  ingressClassName: nginx
   rules:
   - http:
       paths:
-      - path: /{{ $ingressPath }}(/|$)(.*)
-        pathType: Prefix
+      - path: /{{ $ingressPath }}/(.*)
+        pathType: ImplementationSpecific
         backend:
           service:
             name: {{ $fullName }}
