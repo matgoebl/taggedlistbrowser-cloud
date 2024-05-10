@@ -25,16 +25,20 @@ serviceAccount:
 
 podAnnotations: {}
 
-podSecurityContext: {}
-  # fsGroup: 2000
+podSecurityContext:
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10002
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+  capabilities:
+    drop:
+    - ALL
 
 service:
   type: ClusterIP
@@ -58,8 +62,8 @@ ingress:
 
 ingresspath:
 #  type: ""
-  type: "traefik"
-#  type: "nginx"
+#  type: "traefik"
+  type: "nginx"
 #  path: /taggedlistbrowser/
 #  dnsname: "www.example.com"
 #  basicauthsecret: "basicauth-secret"

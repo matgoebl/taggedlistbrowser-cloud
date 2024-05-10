@@ -2,6 +2,8 @@
 IMAGE=taggedlistbrowser
 NAME=$(IMAGE)1
 NAMESPACE=default
+URLPATH=$(NAME)
+DNSNAME=example.com
 
 WEBUSER=demo
 WEBPASS_CMD=echo 'Test-It!'
@@ -16,20 +18,19 @@ PYTHON_MODULES=flask python-dotenv PyYAML gunicorn jsonpath-ng authlib requests
 VENV=.venv
 export BUILDTAG:=$(shell date +%Y%m%d.%H%M%S)
 
-HELM_OPTS:=--set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=$(BUILDTAG) --set image.pullPolicy=Always
+HELM_OPTS:=$(HELM_EXTRA_OPTS) --set image.repository=$(DOCKER_REGISTRY)/$(IMAGE) --set image.tag=$(BUILDTAG) --set image.pullPolicy=Always
+HELM_OPTS:=$(HELM_OPTS) --set ingresspath.path=$(URLPATH) --set ingresspath.dnsname=$(DNSNAME)
 HELM_OPTS:=$(HELM_OPTS) --set ingresspath.basicauthsecret=basicauth-$(IMAGE)
 #HELM_OPTS:=$(HELM_OPTS) --set env.OIDC_CLIENT_SECRET=$(OIDC_CLIENT_SECRET) --set env.OIDC_CLIENT_ID=$(OIDC_CLIENT_ID) --set env.OIDC_METADATA_URL=$(OIDC_METADATA_URL) --set env.APP_SECRET_KEY=$(shell uuidgen)
-APP_URL:=$(shell echo "$(KUBEURL)/$(NAME)/" | sed -e "s|://|://$(WEBUSER):$(WEBPASS)@|")
+APP_URL:=$(shell echo "https://$(DNSNAME)/$(URLPATH)/" | sed -e "s|://|://$(WEBUSER):$(WEBPASS)@|")
 
 all: install-with-datagenerator wait ping
 
 requirements.txt:
-	python3 -m pip install --user virtualenv
 	python3 -m virtualenv $(VENV) && . $(VENV)/bin/activate && python3 -m pip install --upgrade pip && python3 -m pip install $(PYTHON_MODULES)
 	. $(VENV)/bin/activate && python3 -m pip freeze --all | grep -v pkg_resources==0.0.0 > requirements.txt
 
 $(VENV): requirements.txt
-	python3 -m pip install --user virtualenv
 	python3 -m virtualenv $(VENV) && . $(VENV)/bin/activate && python3 -m pip install -r requirements.txt
 	touch $(VENV)
 
